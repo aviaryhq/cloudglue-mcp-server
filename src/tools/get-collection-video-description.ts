@@ -6,12 +6,12 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "The collection id of the video to return, e.g. cloudglue://collections/<collection_id>",
+      "The collection id without the 'cloudglue://collections/' prefix (e.g., for 'cloudglue://collections/abc123', use 'abc123')",
     ),
   file_id: z
     .string()
     .describe(
-      "The file id of the video to return, e.g. cloudglue://files/<file_id>",
+      "The file id without the 'cloudglue://files/' prefix (e.g., for 'cloudglue://files/abc123', use 'abc123')",
     ),
 };
 
@@ -21,7 +21,7 @@ export function registerGetCollectionVideoDescription(
 ) {
   server.tool(
     "get_collection_video_description",
-    "Returns detailed description of a video in a given collection",
+    "Returns detailed description of a video in a given collection. Requires both collection_id and file_id parameters without their URI prefixes",
     schema,
     async ({ collection_id, file_id }) => {
       const description = await cgClient.collections.getDescription(

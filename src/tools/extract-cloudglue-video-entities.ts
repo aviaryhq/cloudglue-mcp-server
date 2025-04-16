@@ -6,7 +6,7 @@ export const schema = {
   url: z
     .string()
     .describe(
-      "The url of the video to extract entities from, e.g. cloudglue://files/file-id",
+      "The file id without the 'cloudglue://files/' prefix (e.g., for 'cloudglue://files/abc123', use 'abc123')",
     ),
   prompt: z
     .string()
@@ -21,7 +21,7 @@ export function registerExtractCloudglueVideoEntities(
 ) {
   server.tool(
     "extract_cloudglue_video_entities",
-    "Returns detailed entities extracted from a video uploaded to CloudGlue. Don't use this tool if it is already part of a collection, get the entities from the collection instead using get-collection-video-entities and file_id",
+    "Returns detailed entities extracted from a video uploaded to CloudGlue. Don't use this tool if the video is already part of a collection; use get_collection_video_entities instead.",
     schema,
     async ({ url, prompt }) => {
       const extractJob = await cgClient.extract.createExtract(url, {

@@ -17,7 +17,7 @@ export function registerListVideoCollections(
 ) {
   server.tool(
     "list_video_collections",
-    "Returns metadata about video collections that the user has access to",
+    "Returns metadata about video collections that the user has access to. Lists all available collections with their IDs and metadata.",
     schema,
     async ({ limit }) => {
       const collections = await cgClient.collections.listCollections({

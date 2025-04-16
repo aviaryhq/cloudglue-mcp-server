@@ -6,7 +6,7 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "The collection id of the videos to chat with, e.g. cloudglue://collections/<collection_id>",
+      "The collection id without the 'cloudglue://collections/' prefix (e.g., for 'cloudglue://collections/abc123', use 'abc123')",
     ),
   prompt: z
     .string()
@@ -21,7 +21,7 @@ export function registerChatWithVideoCollection(
 ) {
   server.tool(
     "chat_with_video_collection",
-    "Returns a chat completion response from a video collection given a prompt",
+    "Returns a chat completion response from a video collection given a prompt. Helpful for search and summarization use cases.",
     schema,
     async ({ collection_id, prompt }) => {
       const response = await cgClient.chat.createCompletion({

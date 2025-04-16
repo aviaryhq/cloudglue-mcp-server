@@ -6,7 +6,7 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "The collection id of the videos to return, e.g. cloudglue://collections/<collection_id>",
+      "The collection id without the 'cloudglue://collections/' prefix (e.g., for 'cloudglue://collections/abc123', use 'abc123')",
     ),
   limit: z
     .number()
@@ -22,7 +22,7 @@ export function registerListCollectionVideos(
 ) {
   server.tool(
     "list_collection_videos",
-    "Returns metadata about videos in a given collection",
+    "Returns metadata about videos in a given collection using the collection ID.",
     schema,
     async ({ collection_id, limit }) => {
       const files = await cgClient.collections.listVideos(collection_id, {

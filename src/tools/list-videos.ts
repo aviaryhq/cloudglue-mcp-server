@@ -14,7 +14,7 @@ export const schema = {
 export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "list_videos",
-    "Returns metadata about videos that the user has access to",
+    "Returns metadata about all individual videos that the user has access to, independent of collections",
     schema,
     async ({ limit }) => {
       const files = await cgClient.files.listFiles({ limit: limit });

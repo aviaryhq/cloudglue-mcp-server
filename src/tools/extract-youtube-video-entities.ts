@@ -21,7 +21,7 @@ export function registerExtractYoutubeVideoEntities(
 ) {
   server.tool(
     "extract_youtube_video_entities",
-    "Returns detailed entities extracted from a youtube video. Don't use this tool if it is already part of a collection, get the entities from the collection instead using get-collection-video-entities and file_id",
+    "Returns detailed entities extracted from a youtube video. Don't use this tool if the video is already part of a collection; use get_collection_video_entities instead.",
     schema,
     async ({ url, prompt }) => {
       const extractJob = await cgClient.extract.createExtract(url, {
