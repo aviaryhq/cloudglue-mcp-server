@@ -1,13 +1,13 @@
 {
   "name": "@aviaryhq/cloudglue-mcp-server",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "bin": {
-    "cloudglue-mcp-server": "./build/index.js"
+    "cloudglue-mcp-server": "build/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod 755 build/index.js",
+    "build": "tsc && shx chmod +x build/*.js",
     "watch": "tsc --watch",
     "prepare": "npm run build",
     "format": "prettier --write src/**/*.ts"
@@ -27,6 +27,7 @@
     "@aviaryhq/cloudglue-js": "^0.0.9",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "dotenv": "^16.4.7",
+    "shx": "^0.4.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
