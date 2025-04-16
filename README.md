@@ -99,3 +99,8 @@ The following CloudGlue tools are available to the LLM:
 - `list_collection_videos`: Returns metadata about videos in a given collection
 - `get_collection_video_description`: Returns detailed description of a video in a given collection
 - `get_collection_video_entities`: Returns detailed entities extracted from a video in a given collection
+
+## Contact
+
+* [Open an Issue](https://github.com/aviaryhq/cloudglue-mcp-server/issues/new)
+* [Email](mailto:support@aviaryhq.com)
