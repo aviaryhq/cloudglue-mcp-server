@@ -66,10 +66,10 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
       "cloudglue-mcp-server": {
           "command": "node",
           "args": [
-              "/ABSOLUTE/PATH/TO/PARENT/FOLDER/cloudglue-mcp-server/build/index.js"
+              "/ABSOLUTE/PATH/TO/PARENT/FOLDER/cloudglue-mcp-server/build/index.js",
               "--api-key",
               "<YOUR-API-KEY>"
-          ],
+          ]
       }
   }
 }
