@@ -6,7 +6,7 @@ export const schema = {
   url: z
     .string()
     .describe(
-      "The file id without the 'cloudglue://files/' prefix (e.g., for 'cloudglue://files/abc123', use 'abc123')",
+      "The fully qualified cloudglue url of the video to describe, e.g. cloudglue://files/file-id",
     ),
 };
 
