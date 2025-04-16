@@ -29,7 +29,7 @@ Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Mo
       "command": "npx",
       "args": [
         "-y",
-        "@aviary-hq/cloudglue-mcp-server@latest"
+        "@aviaryhq/cloudglue-mcp-server@latest"
       ],
       "env": {
         "CLOUDGLUE_API_KEY": "<YOUR-API-KEY>"
