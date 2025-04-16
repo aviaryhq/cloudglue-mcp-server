@@ -24,7 +24,7 @@
   "license": "Elastic-2.0",
   "description": "CloudGlue MCP Server",
   "dependencies": {
-    "@aviaryhq/cloudglue-js": "github:aviaryhq/cloudglue-js#kdr-initial-commit",
+    "@aviaryhq/cloudglue-js": "^0.0.9",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "dotenv": "^16.4.7",
     "zod": "^3.24.2"
