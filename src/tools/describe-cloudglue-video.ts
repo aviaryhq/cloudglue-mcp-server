@@ -16,7 +16,7 @@ export function registerDescribeCloudglueVideo(
 ) {
   server.tool(
     "describe_cloudglue_video",
-    "Returns detailed description of a video uploaded to CloudGlue. Don't use this tool if it is already part of a collection, get the description from the collection instead using get-collection-video-description and file_id",
+    "Returns detailed description of a video uploaded to CloudGlue. Don't use this tool if the video is already part of a collection; use get_collection_video_description instead.",
     schema,
     async ({ url }) => {
       const describeJob = await cgClient.describe.createDescribe(url, {
