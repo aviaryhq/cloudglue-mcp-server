@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CloudGlue } from "cloudglue-js";
+import { CloudGlue } from "@aviaryhq/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export const schema = {

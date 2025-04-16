@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { CloudGlue } from "cloudglue-js"; // TODO replace this with @aviaryhq/cloudglue-js once published
+import { CloudGlue } from "@aviaryhq/cloudglue-js";
 import * as dotenv from "dotenv";
 import { parseArgs } from "node:util";
 

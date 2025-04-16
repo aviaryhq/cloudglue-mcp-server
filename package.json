@@ -1,5 +1,5 @@
 {
-  "name": "cloudglue-mcp-server",
+  "name": "@aviaryhq/cloudglue-mcp-server",
   "type": "module",
   "version": "0.0.1",
   "main": "index.js",
@@ -24,8 +24,8 @@
   "license": "Elastic-2.0",
   "description": "CloudGlue MCP Server",
   "dependencies": {
+    "@aviaryhq/cloudglue-js": "github:aviaryhq/cloudglue-js#kdr-initial-commit",
     "@modelcontextprotocol/sdk": "^1.9.0",
-    "cloudglue-js": "github:aviaryhq/cloudglue-js#kdr-initial-commit",
     "dotenv": "^16.4.7",
     "zod": "^3.24.2"
   },
