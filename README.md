@@ -89,7 +89,7 @@ The following CloudGlue tools are available to the LLM:
 - `describe_cloudglue_video`: Returns detailed description of a video uploaded to CloudGlue.
 - `extract_cloudglue_video_entities`: Returns detailed entities extracted from a video uploaded to CloudGlue.
 - `describe_youtube_video`: Returns detailed description of a YouTube video.
-- `extract_youtube_video_entities`: Returns detailed entities extracted from a youtube video.
+- `extract_youtube_video_entities`: Returns detailed entities extracted from a YouTube video.
 
 **Manage Video Files, Collections and Generated Artifacts**
 
