@@ -16,7 +16,7 @@ export function registerDescribeYoutubeVideo(
 ) {
   server.tool(
     "describe_youtube_video",
-    "Returns detailed description of a youtube video. Don't use this tool if the video is already part of a collection; use get_collection_video_description instead.",
+    "Returns detailed description of a youtube video. Don't use this tool if the video is already part of a collection; use get_collection_video_description instead. Note that YouTube videos are currently limited to speech and metadata level understanding, for fully fledge multimodal video understanding please upload a file instead to the CloudGlue Files API and use the describe_cloudglue_video tool.",
     schema,
     async ({ url }) => {
       const describeJob = await cgClient.describe.createDescribe(url, {
