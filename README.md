@@ -103,4 +103,4 @@ The following CloudGlue tools are available to the LLM:
 ## Contact
 
 * [Open an Issue](https://github.com/aviaryhq/cloudglue-mcp-server/issues/new)
-* [Email](mailto:support@aviaryhq.com)
+* [Email](mailto:support@cloudglue.dev)
