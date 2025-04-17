@@ -45,7 +45,7 @@ Replace `<YOUR-API-KEY>` with the API Key created in step 1. Alternatively inste
 
 ### 1. API Key
 
-First, go to to [CloudGlue API Portal](https://app.cloudglue.dev/home/api-keys) to create an API Key. This will be used to authenticate the MCP server with your CloudGlue account.
+First, get a CloudGlue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your CloudGlue account.
 
 ### 2. Install and build server locally
 
