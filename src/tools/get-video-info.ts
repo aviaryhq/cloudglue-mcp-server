@@ -17,11 +17,36 @@ export function registerGetVideoInfo(server: McpServer, cgClient: CloudGlue) {
     schema,
     async ({ file_id }) => {
       const file = await cgClient.files.getFile(file_id);
+
+      if (file.status !== "completed") {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Unable to retrieve video: Video is in ${file.status} status`,
+            },
+          ],
+          isError: true
+        };
+      }
+
+      const videoInfo = {
+        filename: file.filename,
+        uri: file.uri,
+        id: file.id,
+        created_at: file.created_at,
+        metadata: file.metadata,
+        video_info: file.video_info ? {
+          duration_seconds: file.video_info.duration_seconds,
+          has_audio: file.video_info.has_audio
+        } : null
+      };
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(file),
+            text: JSON.stringify(videoInfo),
           },
         ],
       };
