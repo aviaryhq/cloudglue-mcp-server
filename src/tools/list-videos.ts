@@ -18,11 +18,26 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
     schema,
     async ({ limit }) => {
       const files = await cgClient.files.listFiles({ limit: limit });
+      
+      const filteredFiles = files.data
+        .filter(file => file.status === "completed")
+        .map(file => ({
+          filename: file.filename,
+          uri: file.uri,
+          id: file.id,
+          created_at: file.created_at,
+          metadata: file.metadata,
+          video_info: file.video_info ? {
+            duration_seconds: file.video_info.duration_seconds,
+            has_audio: file.video_info.has_audio
+          } : null
+        }));
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(files),
+            text: JSON.stringify(filteredFiles),
           },
         ],
       };
