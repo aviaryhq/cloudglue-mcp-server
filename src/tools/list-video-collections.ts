@@ -41,13 +41,11 @@ export function registerListVideoCollections(
             name: collection.name,
             created_at: collection.created_at,
             video_count: completedVideoCount,
-            ...(collection.description && { description: collection.description }),
-            ...(collection.extract_config && {
-              extract_config: {
-                ...(collection.extract_config.prompt && { prompt: collection.extract_config.prompt }),
-                ...(collection.extract_config.schema && { schema: collection.extract_config.schema })
-              }
-            })
+            description: collection.description ?? undefined,
+            extract_config: collection.extract_config ? {
+              prompt: collection.extract_config.prompt ?? undefined,
+              schema: collection.extract_config.schema ?? undefined
+            } : undefined
           };
         })
       );
