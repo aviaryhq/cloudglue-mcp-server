@@ -15,36 +15,50 @@ export function registerDescribeYoutubeVideo(
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "describe_youtube_video",
+    "transcribe_youtube_video",
     "Returns detailed description of a youtube video. Don't use this tool if the video is already part of a collection; use get_collection_video_description instead. Note that YouTube videos are currently limited to speech and metadata level understanding, for fully fledge multimodal video understanding please upload a file instead to the CloudGlue Files API and use the describe_cloudglue_video tool.",
     schema,
     async ({ url }) => {
-      const describeJob = await cgClient.describe.createDescribe(url, {
+      const transcribeJob = await cgClient.transcribe.createTranscribe(url, {
+        enable_summary: true,
         enable_speech: true,
-        enable_scene_text: true,
-        enable_visual_scene_description: true,
+        enable_scene_text: false,
+        enable_visual_scene_description: false,
       });
 
       while (
-        describeJob.status === "pending" ||
-        describeJob.status === "processing"
+        transcribeJob.status === "pending" ||
+        transcribeJob.status === "processing"
       ) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
 
-        const updatedJob = await cgClient.describe.getDescribe(
-          describeJob.job_id,
+        const updatedJob = await cgClient.transcribe.getTranscribe(
+          transcribeJob.job_id,
+          {
+            response_format: "markdown",
+          },
         );
-        if (updatedJob.status !== describeJob.status) {
-          Object.assign(describeJob, updatedJob);
+        if (updatedJob.status !== transcribeJob.status) {
+          Object.assign(transcribeJob, updatedJob);
         }
       }
 
-      if (describeJob.status === "completed" && describeJob.data) {
+      if (transcribeJob.status === "completed") {
+        if (transcribeJob.data?.content) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: transcribeJob.data.content,
+              },
+            ],
+          };
+        }
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(describeJob.data),
+              text: JSON.stringify(transcribeJob.data),
             },
           ],
         };
