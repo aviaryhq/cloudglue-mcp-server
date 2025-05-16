@@ -12,8 +12,8 @@ import { registerListVideos } from "./tools/list-videos.js";
 import { registerListCollectionVideos } from "./tools/list-collection-videos.js";
 import { registerGetCollectionVideoDescription } from "./tools/get-collection-video-description.js";
 import { registerGetCollectionVideoEntities } from "./tools/get-collection-video-entities.js";
-import { registerDescribeCloudglueVideo } from "./tools/describe-cloudglue-video.js";
-import { registerDescribeYoutubeVideo } from "./tools/describe-youtube-video.js";
+import { registerDescribeCloudglueVideo } from "./tools/transcribe-cloudglue-video.js";
+import { registerDescribeYoutubeVideo } from "./tools/transcribe-youtube-video.js";
 import { registerExtractCloudglueVideoEntities } from "./tools/extract-cloudglue-video-entities.js";
 import { registerExtractYoutubeVideoEntities } from "./tools/extract-youtube-video-entities.js";
 import { registerChatWithVideoCollection } from "./tools/chat-with-video-collection.js";
@@ -49,6 +49,7 @@ registerListVideoCollections(server, cgClient);
 registerGetVideoInfo(server, cgClient);
 registerListVideos(server, cgClient);
 registerListCollectionVideos(server, cgClient);
+// TODO: migrate to new collection video transcribe API when available
 registerGetCollectionVideoDescription(server, cgClient);
 registerGetCollectionVideoEntities(server, cgClient);
 registerDescribeCloudglueVideo(server, cgClient);
