@@ -49,6 +49,7 @@ registerListVideoCollections(server, cgClient);
 registerGetVideoInfo(server, cgClient);
 registerListVideos(server, cgClient);
 registerListCollectionVideos(server, cgClient);
+// TODO: migrate to new collection video transcribe API when available
 registerGetCollectionVideoDescription(server, cgClient);
 registerGetCollectionVideoEntities(server, cgClient);
 registerDescribeCloudglueVideo(server, cgClient);
