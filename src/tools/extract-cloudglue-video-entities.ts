@@ -21,7 +21,7 @@ export function registerExtractCloudglueVideoEntities(
 ) {
   server.tool(
     "extract_cloudglue_video_entities",
-    "Returns detailed entities extracted from a video uploaded to CloudGlue. Don't use this tool if the video is already part of a collection; use get_collection_video_entities instead.",
+    "Returns detailed entities extracted from a video uploaded to CloudGlue. Don't use this tool if the video is already part of an entity collection; use get_collection_video_entities instead.",
     schema,
     async ({ url, prompt }) => {
       const extractJob = await cgClient.extract.createExtract(url, {

@@ -15,24 +15,23 @@ export const schema = {
     ),
 };
 
-export function registerGetCollectionVideoDescription(
+export function registerGetCollectionRichTranscripts(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "get_collection_video_description",
-    "Returns detailed description of a video in a given collection. Requires both collection_id and file_id parameters without their URI prefixes",
+    "get_collection_rich_transcripts",
+    "Returns rich transcripts of a video in a given collection. Requires both collection_id and file_id parameters without their URI prefixes",
     schema,
     async ({ collection_id, file_id }) => {
-      const description = await cgClient.collections.getDescription(
-        collection_id,
-        file_id,
+      const transcripts = await cgClient.collections.getTranscripts(
+        collection_id, file_id, undefined, undefined, 'markdown'
       );
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(description),
+            text: transcripts.content ?? "No transcripts found",
           },
         ],
       };
