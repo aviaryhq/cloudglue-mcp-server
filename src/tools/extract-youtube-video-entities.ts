@@ -21,7 +21,7 @@ export function registerExtractYoutubeVideoEntities(
 ) {
   server.tool(
     "extract_youtube_video_entities",
-    "Returns detailed entities extracted from a youtube video. Don't use this tool if the video is already part of a collection; use get_collection_video_entities instead.  Note that YouTube videos are currently limited to speech and metadata level understanding, for fully fledge multimodal video understanding please upload a file instead to the CloudGlue Files API and use the extract_cloudglue_video_entities tool.",
+    "Returns detailed entities extracted from a youtube video. Don't use this tool if the video is already part of an entity collection; use get_collection_video_entities instead.  Note that YouTube videos are currently limited to speech and metadata level understanding, for fully fledge multimodal video understanding please upload a file instead to the CloudGlue Files API and use the extract_cloudglue_video_entities tool.",
     schema,
     async ({ url, prompt }) => {
       const extractJob = await cgClient.extract.createExtract(url, {

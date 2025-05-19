@@ -9,6 +9,10 @@ export const schema = {
     .max(100)
     .describe("The maximum number of collections to return")
     .default(10),
+  collection_type: z
+    .string()
+    .describe("The type of collections to return; 'rich-transcripts' or 'entities'")
+    .default("rich-transcripts"),
 };
 
 export function registerListVideoCollections(
@@ -19,9 +23,10 @@ export function registerListVideoCollections(
     "list_video_collections",
     "Returns metadata about video collections that the user has access to. Lists all available collections with their IDs and metadata.",
     schema,
-    async ({ limit }) => {
+    async ({ limit, collection_type }) => {
       const collections = await cgClient.collections.listCollections({
         limit: limit,
+        collection_type: collection_type as "rich-transcripts" | "entities",
       });
 
       // Process each collection to get video counts and selective fields
@@ -39,9 +44,16 @@ export function registerListVideoCollections(
           return {
             id: collection.id,
             name: collection.name,
+            collection_type: collection.collection_type ?? 'rich-transcripts',
             created_at: collection.created_at,
             video_count: completedVideoCount,
-            description: collection.description ?? undefined,
+            description: collection.description ?? undefined,            
+            transcribe_config: collection.transcribe_config ? {
+              enable_summary: collection.transcribe_config.enable_summary ?? undefined,
+              enable_speech: collection.transcribe_config.enable_speech ?? undefined,
+              enable_scene_text: collection.transcribe_config.enable_scene_text ?? undefined,
+              enable_visual_scene_description: collection.transcribe_config.enable_visual_scene_description ?? undefined
+            } : undefined,
             extract_config: collection.extract_config ? {
               prompt: collection.extract_config.prompt ?? undefined,
               schema: collection.extract_config.schema ?? undefined

@@ -21,7 +21,7 @@ export function registerGetCollectionVideoEntities(
 ) {
   server.tool(
     "get_collection_video_entities",
-    "Returns detailed entities extracted from a video in a given collection. Requires both collection_id and file_id parameters without their URI prefixes",
+    "Returns detailed entities extracted from a video in a given entity collection. Requires both collection_id and file_id parameters without their URI prefixes",
     schema,
     async ({ collection_id, file_id }) => {
       const entities = await cgClient.collections.getEntities(

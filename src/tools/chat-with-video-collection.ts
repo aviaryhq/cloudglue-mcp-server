@@ -6,7 +6,7 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "The collection id without the 'cloudglue://collections/' prefix (e.g., for 'cloudglue://collections/abc123', use 'abc123')",
+      "The collection id without the 'cloudglue://collections/' prefix (e.g., for 'cloudglue://collections/abc123', use 'abc123'. Only Rich Transcript (collection_type='rich-transcripts') and Entity (collection_type: 'entities') collections are supported as input to this tool.)",
     ),
   prompt: z
     .string()

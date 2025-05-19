@@ -10,18 +10,23 @@ import { registerListVideoCollections } from "./tools/list-video-collections.js"
 import { registerGetVideoInfo } from "./tools/get-video-info.js";
 import { registerListVideos } from "./tools/list-videos.js";
 import { registerListCollectionVideos } from "./tools/list-collection-videos.js";
-import { registerGetCollectionVideoDescription } from "./tools/get-collection-video-description.js";
+import { registerGetCollectionRichTranscripts } from "./tools/get-collection-rich-transcripts.js";
 import { registerGetCollectionVideoEntities } from "./tools/get-collection-video-entities.js";
 import { registerDescribeCloudglueVideo } from "./tools/transcribe-cloudglue-video.js";
 import { registerDescribeYoutubeVideo } from "./tools/transcribe-youtube-video.js";
 import { registerExtractCloudglueVideoEntities } from "./tools/extract-cloudglue-video-entities.js";
 import { registerExtractYoutubeVideoEntities } from "./tools/extract-youtube-video-entities.js";
 import { registerChatWithVideoCollection } from "./tools/chat-with-video-collection.js";
+import { registerListTranscripts } from "./tools/list-transcripts.js";
+import { registerListExtracts } from "./tools/list-extracts.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
   options: {
     "api-key": {
+      type: "string",
+    },
+    "base-url": {
       type: "string",
     },
   },
@@ -32,12 +37,15 @@ dotenv.config();
 
 const cgClient = new CloudGlue({
   apiKey: args["api-key"] || process.env.CLOUDGLUE_API_KEY,
+  ...(args["base-url"] || process.env.CLOUDGLUE_BASE_URL ? {
+    baseUrl: args["base-url"] || process.env.CLOUDGLUE_BASE_URL,
+  } : {}),
 });
 
 // Create server instance
 const server = new McpServer({
   name: "cloudglue-mcp-server",
-  version: "0.0.7",
+  version: "0.0.9",
   capabilities: {
     resources: {},
     tools: {},
@@ -49,14 +57,15 @@ registerListVideoCollections(server, cgClient);
 registerGetVideoInfo(server, cgClient);
 registerListVideos(server, cgClient);
 registerListCollectionVideos(server, cgClient);
-// TODO: migrate to new collection video transcribe API when available
-registerGetCollectionVideoDescription(server, cgClient);
+registerGetCollectionRichTranscripts(server, cgClient);
 registerGetCollectionVideoEntities(server, cgClient);
 registerDescribeCloudglueVideo(server, cgClient);
 registerDescribeYoutubeVideo(server, cgClient);
 registerExtractCloudglueVideoEntities(server, cgClient);
 registerExtractYoutubeVideoEntities(server, cgClient);
 registerChatWithVideoCollection(server, cgClient);
+registerListTranscripts(server, cgClient);
+registerListExtracts(server, cgClient);
 
 // Run server
 async function main() {
