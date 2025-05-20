@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/aviaryhq-cloudglue-mcp-server-badge.png)](https://mseep.ai/app/aviaryhq-cloudglue-mcp-server)
+
 # CloudGlue MCP Server
 
 [![NPM Version](https://img.shields.io/npm/v/%40aviaryhq%2Fcloudglue-mcp-server)](https://www.npmjs.com/package/@aviaryhq/cloudglue-mcp-server) 
