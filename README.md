@@ -87,23 +87,31 @@ The following CloudGlue tools are available to the LLM:
 
 **Chat with Videos**
 
-- `chat_with_video_collection`: Returns a chat completion response from a video collection given a prompt, can be used to search for information in the video collection to quickly answer questions or find videos relevant to a query
+- `chat_with_video_collection`: Returns a chat completion response from a video collection given a prompt. Helpful for search and summarization use cases.
 
-**Describe and Extract Information from Videos**
+**Transcribe and Extract Information from Videos**
 
-- `describe_cloudglue_video`: Returns detailed description of a video uploaded to CloudGlue.
+- `transcribe_cloudglue_video`: Returns rich multimodal video transcript of a video uploaded to CloudGlue.
+- `transcribe_youtube_video`: Returns detailed description of a YouTube video.
 - `extract_cloudglue_video_entities`: Returns detailed entities extracted from a video uploaded to CloudGlue.
-- `describe_youtube_video`: Returns detailed description of a YouTube video.
 - `extract_youtube_video_entities`: Returns detailed entities extracted from a YouTube video.
 
-**Manage Video Files, Collections and Generated Artifacts**
+**Manage Video Files and Collections**
 
-- `get_video_info`: Returns information about a video given a cloudglue video url
-- `list_videos`: Returns metadata about videos that the user has access to
-- `list_video_collections`: Returns metadata about video collections that the user has access to
-- `list_collection_videos`: Returns metadata about videos in a given collection
-- `get_collection_video_description`: Returns detailed description of a video in a given collection
-- `get_collection_video_entities`: Returns detailed entities extracted from a video in a given collection
+- `list_videos`: Returns metadata about all individual videos the user has access to, independent of collections.
+- `get_video_info`: Returns information about a specific video.
+- `list_video_collections`: Returns metadata about video collections that the user has access to.
+- `list_collection_videos`: Returns metadata about videos in a given collection.
+
+**Access Rich Transcripts and Entities**
+
+- `get_collection_rich_transcripts`: Returns rich transcripts of a video in a given collection.
+- `get_collection_video_entities`: Returns detailed entities extracted from a video in a given collection.
+
+**List Individual Transcription and Extraction Jobs**
+
+- `list_transcripts`: Returns individual video transcription jobs executed by user, independent of collections.
+- `list_extracts`: Returns individual video entity extractions executed by user, independent of collections.
 
 ## Contact
 
