@@ -1,27 +1,27 @@
-# CloudGlue MCP Server
+# Cloudglue MCP Server
 
 [![NPM Version](https://img.shields.io/npm/v/%40aviaryhq%2Fcloudglue-mcp-server)](https://www.npmjs.com/package/@aviaryhq/cloudglue-mcp-server) 
 [![License](https://img.shields.io/badge/License-ELv2-blue.svg)](LICENSE.md)
 ![MCP](https://badge.mcpx.dev?status=on 'MCP Enabled')
 [![Discord](https://img.shields.io/discord/1366541583272382536?logo=discord&label=Discord)](https://discord.gg/QD5KWFVner)
 
-Connect CloudGlue to Cursor, Claude Desktop, and other AI assistants to unlock the power of video collection understanding. CloudGlue helps your videos into structured data ready for LLMs.
+Connect Cloudglue to Cursor, Claude Desktop, and other AI assistants to unlock the power of video collection understanding. Cloudglue helps your videos into structured data ready for LLMs.
 
 ## 📖 Resources
 
 - [Model Context Protocol](https://modelcontextprotocol.io/introduction)
-- [CloudGlue API Docs](https://docs.cloudglue.dev)
+- [Cloudglue API Docs](https://docs.cloudglue.dev)
 - [Terms of Service](https://cloudglue.dev/terms)
 - [Privacy Policy](https://cloudglue.dev/privacy)
 - [Pricing](https://cloudglue.dev/pricing)
 
-> By using the CloudGlue SDK and/or the MCP server, you agree to the [CloudGlue Terms of Service](https://cloudglue.dev/terms) and acknowledge our [Privacy Policy](https://cloudglue.dev/privacy).
+> By using the Cloudglue SDK and/or the MCP server, you agree to the [Cloudglue Terms of Service](https://cloudglue.dev/terms) and acknowledge our [Privacy Policy](https://cloudglue.dev/privacy).
 
 ## Setup
 
 ### 1. API Key
 
-First, get a CloudGlue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your CloudGlue account.
+First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your Cloudglue account.
 
 ### 2. Configure MCP client
 
@@ -50,7 +50,7 @@ Replace `<YOUR-API-KEY>` with the API Key created in step 1. Alternatively inste
 
 ### 1. API Key
 
-First, get a CloudGlue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your CloudGlue account.
+First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your CloudGglue account.
 
 ### 2. Install and build server locally
 
@@ -83,7 +83,7 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
 
 ## Tools
 
-The following CloudGlue tools are available to the LLM:
+The following Cloudglue tools are available to the LLM:
 
 **Chat with Videos**
 
@@ -91,9 +91,9 @@ The following CloudGlue tools are available to the LLM:
 
 **Transcribe and Extract Information from Videos**
 
-- `transcribe_cloudglue_video`: Returns rich multimodal video transcript of a video uploaded to CloudGlue.
+- `transcribe_cloudglue_video`: Returns rich multimodal video transcript of a video uploaded to Cloudglue.
 - `transcribe_youtube_video`: Returns detailed description of a YouTube video.
-- `extract_cloudglue_video_entities`: Returns detailed entities extracted from a video uploaded to CloudGlue.
+- `extract_cloudglue_video_entities`: Returns detailed entities extracted from a video uploaded to Cloudglue.
 - `extract_youtube_video_entities`: Returns detailed entities extracted from a YouTube video.
 
 **Manage Video Files and Collections**
