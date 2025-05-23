@@ -11,9 +11,14 @@ export const schema = {
   limit: z
     .number()
     .min(1)
-    .max(100)
+    .max(10)
     .describe("The maximum number of entities to return")
-    .default(10),
+    .default(20),
+  offset: z
+    .number()
+    .min(0)
+    .describe("The offset to start from")
+    .default(0),
 };
 
 export function registerListCollectionEntities(
@@ -22,12 +27,12 @@ export function registerListCollectionEntities(
 ) {
   server.tool(
     "list_collection_entities",
-    "Batch retrieves all entities in a collection with a single call.",
+    "Retrieves a batch of entities in a collection with a single call, with pagination. Use the offset parameter to paginate through the results.",
     schema,
-    async ({ collection_id, limit }) => {
+    async ({ collection_id, limit, offset }) => {
       const entities = await cgClient.collections.listEntities(
         collection_id,
-        { limit }
+        { limit: limit, offset: offset }
       );
       
       return {
