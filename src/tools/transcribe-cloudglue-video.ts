@@ -16,7 +16,7 @@ export function registerDescribeCloudglueVideo(
 ) {
   server.tool(
     "transcribe_cloudglue_video",
-    "Returns rich multimodal video transcript (detailed description) of a video uploaded to CloudGlue. Don't use this tool if the video is already part of a collection; use get_collection_video_description instead.",
+    "Generates a comprehensive multimodal transcript for an individual CloudGlue video by URL. Analyzes visual content, speech, and on-screen text to create a detailed scene-by-scene description. Only use for videos not yet in collections - for collection videos, use get_collection_rich_transcripts instead.",
     schema,
     async ({ url }) => {
       const transcribeJob = await cgClient.transcribe.createTranscribe(url, {

@@ -92,9 +92,9 @@ The following Cloudglue tools are available to the LLM:
 **Transcribe and Extract Information from Videos**
 
 - `transcribe_cloudglue_video`: Returns rich multimodal video transcript of a video uploaded to Cloudglue.
-- `transcribe_youtube_video`: Returns detailed description of a YouTube video.
+- `transcribe_youtube_video`: Returns detailed descriptions of YouTube videos. Can process multiple videos in parallel (up to 50 URLs, max 10 concurrent).
 - `extract_cloudglue_video_entities`: Returns detailed entities extracted from a video uploaded to Cloudglue.
-- `extract_youtube_video_entities`: Returns detailed entities extracted from a YouTube video.
+- `extract_youtube_video_entities`: Returns detailed entities extracted from YouTube videos. Can process multiple videos in parallel using the same extraction prompt (up to 50 URLs, max 10 concurrent).
 
 **Manage Video Files and Collections**
 
@@ -107,6 +107,8 @@ The following Cloudglue tools are available to the LLM:
 
 - `get_collection_rich_transcripts`: Returns rich transcripts of a video in a given collection.
 - `get_collection_video_entities`: Returns detailed entities extracted from a video in a given collection.
+- `list_collection_entities`: Returns a list of entities extracted from all videos in a given collection.
+- `list_collection_rich_transcripts`: Returns a list of rich transcripts from all videos in a given collection.
 
 **List Individual Transcription and Extraction Jobs**
 

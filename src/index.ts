@@ -19,6 +19,8 @@ import { registerExtractYoutubeVideoEntities } from "./tools/extract-youtube-vid
 import { registerChatWithVideoCollection } from "./tools/chat-with-video-collection.js";
 import { registerListTranscripts } from "./tools/list-transcripts.js";
 import { registerListExtracts } from "./tools/list-extracts.js";
+import { registerListCollectionEntities } from "./tools/list-collection-entities.js";
+import { registerListCollectionRichTranscripts } from "./tools/list-collection-rich-transcripts.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
@@ -54,8 +56,10 @@ const server = new McpServer({
 
 // Register all tools
 registerListVideoCollections(server, cgClient);
-registerGetVideoInfo(server, cgClient);
+registerListCollectionEntities(server, cgClient);
+registerListCollectionRichTranscripts(server, cgClient);
 registerListVideos(server, cgClient);
+registerGetVideoInfo(server, cgClient);
 registerListCollectionVideos(server, cgClient);
 registerGetCollectionRichTranscripts(server, cgClient);
 registerGetCollectionVideoEntities(server, cgClient);
@@ -66,6 +70,7 @@ registerExtractYoutubeVideoEntities(server, cgClient);
 registerChatWithVideoCollection(server, cgClient);
 registerListTranscripts(server, cgClient);
 registerListExtracts(server, cgClient);
+
 
 // Run server
 async function main() {

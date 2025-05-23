@@ -3,10 +3,12 @@ import { CloudGlue } from "@aviaryhq/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export const schema = {
-  url: z
-    .string()
+  urls: z
+    .array(z.string())
+    .min(1)
+    .max(50)
     .describe(
-      "The url of the youtube video to extract entities from, e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "Array of YouTube video URLs to extract entities from, e.g. ['https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'https://www.youtube.com/watch?v=abc123']. Maximum 50 URLs.",
     ),
   prompt: z
     .string()
@@ -15,47 +17,82 @@ export const schema = {
     ),
 };
 
+// Helper function to process URLs in batches with concurrency control
+async function processBatch<T>(
+  items: T[],
+  batchSize: number,
+  processor: (item: T) => Promise<any>
+): Promise<any[]> {
+  const results = [];
+  
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await Promise.all(batch.map(processor));
+    results.push(...batchResults);
+  }
+  
+  return results;
+}
+
 export function registerExtractYoutubeVideoEntities(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
     "extract_youtube_video_entities",
-    "Returns detailed entities extracted from a youtube video. Don't use this tool if the video is already part of an entity collection; use get_collection_video_entities instead.  Note that YouTube videos are currently limited to speech and metadata level understanding, for fully fledge multimodal video understanding please upload a file instead to the CloudGlue Files API and use the extract_cloudglue_video_entities tool.",
+    "Extracts structured data from YouTube videos (up to 50 URLs) based on your prompt. Limited to speech and metadata. For videos in entity collections, use get_collection_video_entities.",
     schema,
-    async ({ url, prompt }) => {
-      const extractJob = await cgClient.extract.createExtract(url, {
-        prompt: prompt,
-      });
+    async ({ urls, prompt }) => {
+      const processVideo = async (url: string) => {
+        try {
+          const extractJob = await cgClient.extract.createExtract(url, {
+            prompt: prompt,
+          });
 
-      while (
-        extractJob.status === "pending" ||
-        extractJob.status === "processing"
-      ) {
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+          while (
+            extractJob.status === "pending" ||
+            extractJob.status === "processing"
+          ) {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
 
-        const updatedJob = await cgClient.extract.getExtract(extractJob.job_id);
-        if (updatedJob.status !== extractJob.status) {
-          Object.assign(extractJob, updatedJob);
+            const updatedJob = await cgClient.extract.getExtract(extractJob.job_id);
+            if (updatedJob.status !== extractJob.status) {
+              Object.assign(extractJob, updatedJob);
+            }
+          }
+
+          if (extractJob.status === "completed" && extractJob.data) {
+            return {
+              url,
+              status: "success",
+              entities: extractJob.data,
+            };
+          }
+
+          return {
+            url,
+            status: "error",
+            entities: null,
+            error: "Failed to extract entities from video",
+          };
+        } catch (error) {
+          return {
+            url,
+            status: "error",
+            entities: null,
+            error: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          };
         }
-      }
+      };
 
-      if (extractJob.status === "completed" && extractJob.data) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(extractJob.data),
-            },
-          ],
-        };
-      }
+      // Process URLs in batches of 10 for concurrency control
+      const results = await processBatch(urls, 10, processVideo);
 
       return {
         content: [
           {
             type: "text",
-            text: "Error: Failed to extract entities from video",
+            text: JSON.stringify(results, null, 2),
           },
         ],
       };
