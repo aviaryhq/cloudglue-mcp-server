@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to transcribe. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or CloudGlue URLs (cloudglue://files/file-id). For CloudGlue URLs, use the file ID from list_videos."),
+    .describe("Video URL to transcribe. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or Cloudglue URLs (cloudglue://files/file-id). For Cloudglue URLs, use the file ID from list_videos."),
   collection_id: z
     .string()
     .describe("Optional collection ID to check for existing transcripts first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with CloudGlue URLs.")

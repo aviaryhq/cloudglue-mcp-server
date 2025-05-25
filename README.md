@@ -83,7 +83,7 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
 
 ## Tools
 
-The following CloudGlue tools are available to LLMs through this MCP server:
+The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Discovery & Navigation**
 
@@ -93,7 +93,7 @@ The following CloudGlue tools are available to LLMs through this MCP server:
 
 ### **Individual Video Analysis**
 
-- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or CloudGlue) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization.
+- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization.
 
 - **`get_video_entity`**: Extract structured data and entities from individual videos using custom prompts. Quality depends on prompt specificity. Examples: extract speakers, products, action items, or any structured information.
 
