@@ -5,7 +5,7 @@
 ![MCP](https://badge.mcpx.dev?status=on 'MCP Enabled')
 [![Discord](https://img.shields.io/discord/1366541583272382536?logo=discord&label=Discord)](https://discord.gg/QD5KWFVner)
 
-Connect Cloudglue to Cursor, Claude Desktop, and other AI assistants to unlock the power of video collection understanding. Cloudglue helps your videos into structured data ready for LLMs.
+Connect Cloudglue to Cursor, Claude Desktop, and other AI assistants to unlock the power of video collection understanding. Cloudglue helps turn your videos into structured data ready for LLMs.
 
 ## 📖 Resources
 
@@ -50,7 +50,7 @@ Replace `<YOUR-API-KEY>` with the API Key created in step 1. Alternatively inste
 
 ### 1. API Key
 
-First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your CloudGglue account.
+First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your Cloudglue account.
 
 ### 2. Install and build server locally
 
@@ -83,37 +83,38 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
 
 ## Tools
 
-The following Cloudglue tools are available to the LLM:
+The following Cloudglue tools are available to LLMs through this MCP server:
 
-**Chat with Videos**
+### **Discovery & Navigation**
 
-- `chat_with_video_collection`: Returns a chat completion response from a video collection given a prompt. Helpful for search and summarization use cases.
+- **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types.
 
-**Transcribe and Extract Information from Videos**
+- **`list_videos`**: Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools.
 
-- `transcribe_cloudglue_video`: Returns rich multimodal video transcript of a video uploaded to Cloudglue.
-- `transcribe_youtube_video`: Returns detailed descriptions of YouTube videos. Can process multiple videos in parallel (up to 50 URLs, max 10 concurrent).
-- `extract_cloudglue_video_entities`: Returns detailed entities extracted from a video uploaded to Cloudglue.
-- `extract_youtube_video_entities`: Returns detailed entities extracted from YouTube videos. Can process multiple videos in parallel using the same extraction prompt (up to 50 URLs, max 10 concurrent).
+### **Individual Video Analysis**
 
-**Manage Video Files and Collections**
+- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization.
 
-- `list_videos`: Returns metadata about all individual videos the user has access to, independent of collections.
-- `get_video_info`: Returns information about a specific video.
-- `list_video_collections`: Returns metadata about video collections that the user has access to.
-- `list_collection_videos`: Returns metadata about videos in a given collection.
+- **`get_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.
 
-**Access Rich Transcripts and Entities**
+- **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like get_video_description.
 
-- `get_collection_rich_transcripts`: Returns rich transcripts of a video in a given collection.
-- `get_collection_video_entities`: Returns detailed entities extracted from a video in a given collection.
-- `list_collection_entities`: Returns a list of entities extracted from all videos in a given collection.
-- `list_collection_rich_transcripts`: Returns a list of rich transcripts from all videos in a given collection.
+### **Collection Analysis**
 
-**List Individual Transcription and Extraction Jobs**
+- **`retrieve_collection_transcripts`**: Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this for comprehensive analysis of multiple videos in a collection, when you need to compare transcripts, or analyze patterns across content. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods.
 
-- `list_transcripts`: Returns individual video transcription jobs executed by user, independent of collections.
-- `list_extracts`: Returns individual video entity extractions executed by user, independent of collections.
+- **`retrieve_collection_entities`**: Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entities instead.
+
+- **`find_video_collection_moments`**: AI-powered semantic search to find specific moments, topics, or content within a video collection. Returns relevant segments with context, timestamps, and citations. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis across multiple videos. Much more targeted than bulk retrieval tools.
+
+### **When to Use Which Tool**
+
+- **Start with** `list_collections` and `list_videos` to explore available content
+- **For single videos**: Use `get_video_description` or `get_video_entities` 
+- **For collections**: Use `retrieve_collection_*` for bulk analysis or `find_video_collection_moments` for targeted searches
+- **For technical specs**: Use `get_video_metadata`
+
+All tools include intelligent features like cost optimization, automatic fallbacks, and comprehensive error handling.
 
 ## Contact
 
