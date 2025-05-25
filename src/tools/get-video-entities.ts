@@ -5,13 +5,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to extract entities from. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or CloudGlue URLs (cloudglue://files/file-id). For CloudGlue URLs, use the file ID from list_videos."),
+    .describe("Video URL to extract entities from. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or Cloudglue URLs (cloudglue://files/file-id). For Cloudglue URLs, use the file ID from list_videos."),
   prompt: z
     .string()
     .describe("Detailed extraction prompt that guides what entities to find. Examples: 'Extract speaker names, key topics, and action items', 'Find product names, prices, and features mentioned', 'Identify companies, people, and technologies discussed'. Be specific about the data structure you want."),
   collection_id: z
     .string()
-    .describe("Optional collection ID to check for existing entity extractions first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with CloudGlue URLs.")
+    .describe("Optional collection ID to check for existing entity extractions first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs.")
     .optional(),
   force_new: z
     .boolean()
@@ -19,18 +19,18 @@ export const schema = {
     .default(false),
 };
 
-// Helper function to extract file ID from CloudGlue URL
+// Helper function to extract file ID from Cloudglue URL
 function extractFileIdFromUrl(url: string): string | null {
   const match = url.match(/cloudglue:\/\/files\/(.+)/);
   return match ? match[1] : null;
 }
 
-export function registerGetVideoEntity(
+export function registerGetVideoEntities(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "get_video_entity",
+    "get_video_entities",
     "Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.",
     schema,
     async ({ url, prompt, collection_id, force_new }) => {

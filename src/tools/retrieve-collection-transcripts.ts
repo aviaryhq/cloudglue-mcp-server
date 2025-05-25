@@ -35,7 +35,7 @@ export function registerRetrieveCollectionTranscripts(
 ) {
   server.tool(
     "retrieve_collection_transcripts",
-    "Bulk retrieve transcripts from a collection with advanced filtering. Use this for comprehensive analysis of multiple videos in a collection, when you need to compare transcripts, or analyze patterns across content. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods.",
+    "Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this for comprehensive analysis of multiple videos in a collection, when you need to compare transcripts, or analyze patterns across content. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods.",
     schema,
     async ({ collection_id, limit, offset, created_after, created_before }) => {
       // Get all transcripts first to apply our own filtering

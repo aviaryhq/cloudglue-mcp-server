@@ -9,7 +9,7 @@ import { parseArgs } from "node:util";
 import { registerListCollections } from "./tools/list-collections.js";
 import { registerListVideos } from "./tools/list-videos.js";
 import { registerGetVideoDescription } from "./tools/get-video-description.js";
-import { registerGetVideoEntity } from "./tools/get-video-entity.js";
+import { registerGetVideoEntities } from "./tools/get-video-entities.js";
 import { registerRetrieveCollectionTranscripts } from "./tools/retrieve-collection-transcripts.js";
 import { registerRetrieveCollectionEntities } from "./tools/retrieve-collection-entities.js";
 import { registerFindVideoCollectionMoments } from "./tools/find-video-collection-moments.js";
@@ -51,7 +51,7 @@ const server = new McpServer({
 registerListCollections(server, cgClient);
 registerListVideos(server, cgClient);
 registerGetVideoDescription(server, cgClient);
-registerGetVideoEntity(server, cgClient);
+registerGetVideoEntities(server, cgClient);
 registerRetrieveCollectionTranscripts(server, cgClient);
 registerRetrieveCollectionEntities(server, cgClient);
 registerFindVideoCollectionMoments(server, cgClient);
@@ -62,7 +62,7 @@ registerGetVideoMetadata(server, cgClient);
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("CloudGlue MCP Server running on stdio");
+  console.error("Cloudglue MCP Server running on stdio");
 }
 
 main().catch((error) => {

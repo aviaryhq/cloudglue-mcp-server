@@ -35,7 +35,7 @@ export function registerRetrieveCollectionEntities(
 ) {
   server.tool(
     "retrieve_collection_entities",
-    "Bulk retrieve structured entity data from a collection with advanced filtering. Use this for comprehensive analysis of extracted data across multiple videos, finding patterns, or aggregating structured information. For single videos, use get_video_entity instead. Use date filtering to focus on specific time periods.",
+    "Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entity instead.",
     schema,
     async ({ collection_id, limit, offset, created_after, created_before }) => {
       // Get all entities first to apply our own filtering

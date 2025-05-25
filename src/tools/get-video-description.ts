@@ -5,10 +5,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to transcribe. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or CloudGlue URLs (cloudglue://files/file-id). For CloudGlue URLs, use the file ID from list_videos."),
+    .describe("Video URL to transcribe. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or Cloudglue URLs (cloudglue://files/file-id). For Cloudglue URLs, use the file ID from list_videos."),
   collection_id: z
     .string()
-    .describe("Optional collection ID to check for existing transcripts first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with CloudGlue URLs.")
+    .describe("Optional collection ID to check for existing transcripts first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs.")
     .optional(),
   force_new: z
     .boolean()
@@ -16,7 +16,7 @@ export const schema = {
     .default(false)
 };
 
-// Helper function to extract file ID from CloudGlue URL
+// Helper function to extract file ID from Cloudglue URL
 function extractFileIdFromUrl(url: string): string | null {
   const match = url.match(/cloudglue:\/\/files\/(.+)/);
   return match ? match[1] : null;
@@ -28,7 +28,7 @@ export function registerGetVideoDescription(
 ) {
   server.tool(
     "get_video_description",
-    "Get comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. For individual videos - use retrieve_collection_transcripts for bulk collection analysis. Supports both YouTube and CloudGlue videos with different analysis levels.",
+    "Get comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. For individual videos - use retrieve_collection_transcripts for bulk collection analysis. Supports both YouTube and Cloudglue videos with different analysis levels.",
     schema,
     async ({ url, collection_id, force_new }) => {
       const fileId = extractFileIdFromUrl(url);
@@ -87,8 +87,8 @@ export function registerGetVideoDescription(
         const transcribeConfig = {
           enable_summary: isYouTube, // only for youtube
           enable_speech: true,
-          enable_scene_text: isCloudGlue, // Only enable for CloudGlue videos
-          enable_visual_scene_description: isCloudGlue, // Only enable for CloudGlue videos
+          enable_scene_text: isCloudGlue, // Only enable for Cloudglue videos
+          enable_visual_scene_description: isCloudGlue, // Only enable for Cloudglue videos
         };
 
         const transcribeJob = await cgClient.transcribe.createTranscribe(url, transcribeConfig);

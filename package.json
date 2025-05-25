@@ -22,7 +22,7 @@
   ],
   "author": "Aviary Inc.",
   "license": "Elastic-2.0",
-  "description": "CloudGlue MCP Server",
+  "description": "Cloudglue MCP Server",
   "dependencies": {
     "@aviaryhq/cloudglue-js": "^0.0.16",
     "@modelcontextprotocol/sdk": "^1.9.0",
