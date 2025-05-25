@@ -93,7 +93,11 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Individual Video Analysis**
 
+<<<<<<< HEAD
 - **`get_video_description`**: Get comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. For individual videos - use retrieve_collection_transcripts for bulk collection analysis. Supports both YouTube and Cloudglue videos with different analysis levels.
+=======
+- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization.
+>>>>>>> a4befe46113dbf4aee38543e57db22eaf98268b4
 
 - **`get_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.
 
