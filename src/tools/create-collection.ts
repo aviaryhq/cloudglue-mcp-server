@@ -47,7 +47,7 @@ export function registerCreateCollection(
 ) {
   server.tool(
     "create_collection",
-    "Create a new CloudGlue collection for organizing videos with specific analysis configurations. Supports both rich-transcripts (comprehensive video analysis) and entities (structured data extraction) collection types. Each type has different configuration options for customizing the analysis pipeline.",
+    "Create a new Cloudglue collection for organizing videos with specific analysis configurations. Supports both rich-transcripts (comprehensive video analysis) and entities (structured data extraction) collection types. Each type has different configuration options for customizing the analysis pipeline.",
     schema,
     async ({ 
       name, 

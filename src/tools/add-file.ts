@@ -18,7 +18,7 @@ export const schema = {
     .optional(),
   file_id: z
     .string()
-    .describe("Existing CloudGlue file ID to add to collection. Use this instead of local_file_path to add already uploaded files. Required if local_file_path is not provided.")
+    .describe("Existing Cloudglue file ID to add to collection. Use this instead of local_file_path to add already uploaded files. Required if local_file_path is not provided.")
     .optional(),
   collection_id: z
     .string()
@@ -64,7 +64,7 @@ export function registerAddFile(
 ) {
   server.tool(
     "add_file",
-    "Upload local files to CloudGlue or add existing CloudGlue files to collections. Supports two modes: 1) Upload new file with optional collection assignment, 2) Add existing file to collection. Returns comprehensive file metadata and collection status. Use working directory context for relative file paths.",
+    "Upload local files to Cloudglue or add existing Cloudglue files to collections. Supports two modes: 1) Upload new file with optional collection assignment, 2) Add existing file to collection. Returns comprehensive file metadata and collection status. Use working directory context for relative file paths.",
     schema,
     async ({ local_file_path, file_id, collection_id }) => {
       // Validation: must provide either local_file_path or file_id
