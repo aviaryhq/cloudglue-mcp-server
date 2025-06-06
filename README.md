@@ -119,7 +119,9 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Collection Management**
 
-- **`create_collection`**: Create a new CloudGlue collection for organizing videos with specific analysis configurations. Supports both rich-transcripts (comprehensive video analysis) and entities (structured data extraction) collection types. Each type has different configuration options for customizing the analysis pipeline. Returns complete collection metadata upon successful creation.
+- **`create_collection`**: Create a new Cloudglue collection for organizing videos with specific analysis configurations. Supports both rich-transcripts (comprehensive video analysis) and entities (structured data extraction) collection types. Each type has different configuration options for customizing the analysis pipeline. Returns complete collection metadata upon successful creation.
+
+- **`add_youtube`**: Add YouTube videos to a Cloudglue collection with parallel processing. Supports individual video URLs (up to 50), playlist URLs, and channel URLs. For playlists/channels, extracts up to 15 most recent videos using YouTube RSS feeds. **Note: Only YouTube videos with available transcripts can be successfully processed by Cloudglue.** Processes videos in batches of 5 for optimal performance and waits for all to complete before returning the updated collection video list.
 
 ### **Discovery & Navigation**
 
@@ -147,6 +149,7 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 - **To create collections**: Use `create_collection` to set up new video collections with specific analysis configurations
 - **To upload files**: Use `add_file` to upload local files or add existing files to collections
+- **To add YouTube content**: Use `add_youtube` to bulk add YouTube videos or playlists to collections
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
 - **For single videos**: Use `get_video_description` or `get_video_entities` 
 - **For collections**: Use `retrieve_collection_*` for bulk analysis or `find_video_collection_moments` for targeted searches
