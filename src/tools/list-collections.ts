@@ -46,22 +46,17 @@ export function registerListCollections(
             name: collection.name,
             collection_type: collection.collection_type ?? 'rich-transcripts',
             created_at: collection.created_at,
-            video_count: completedVideoCount,
+            completed_video_count: completedVideoCount,
             description: collection.description ?? undefined,            
           };
         })
-      );
-
-      // Filter out collections with no completed videos
-      const collectionsWithVideos = processedCollections.filter(
-        collection => collection.video_count > 0
       );
 
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(collectionsWithVideos, null, 2),
+            text: JSON.stringify(processedCollections, null, 2),
           },
         ],
       };
