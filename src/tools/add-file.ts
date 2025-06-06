@@ -113,7 +113,7 @@ export function registerAddFile(
             : path.join(workingDir, local_file_path);
 
           // Validate file exists and check permissions
-                     try {
+          try {
              await fs.promises.access(resolvedPath, fs.constants.R_OK);
            } catch (error) {
              const nodeError = error as NodeJS.ErrnoException;
