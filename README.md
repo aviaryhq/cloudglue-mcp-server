@@ -44,7 +44,35 @@ Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Mo
 }
 ```
 
-Replace `<YOUR-API-KEY>` with the API Key created in step 1. Alternatively instead of the environment variable you could pass in the API key to the server via the `--api-key` CLI flag.
+Replace `<YOUR-API-KEY>` with the API Key created in step 1. 
+
+### Optional Configuration
+
+You can customize the server with additional CLI arguments:
+
+- `--api-key`: Provide API key directly (alternative to environment variable)
+- `--base-url`: Use custom Cloudglue API endpoint  
+- `--working-dir`: Set working directory for local file uploads (defaults to home directory)
+
+Example with custom working directory:
+```json
+{
+  "mcpServers": {
+    "cloudglue": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@aviaryhq/cloudglue-mcp-server@latest",
+        "--working-dir",
+        "/path/to/your/videos"
+      ],
+      "env": {
+        "CLOUDGLUE_API_KEY": "<YOUR-API-KEY>"
+        }
+    }
+  }
+}
+```
 
 ## Local Development Setup
 
@@ -85,6 +113,10 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
 
 The following Cloudglue tools are available to LLMs through this MCP server:
 
+### **File Management**
+
+- **`add_file`**: Upload local files to Cloudglue or add existing Cloudglue files to collections. Supports two modes: 1) Upload new file with optional collection assignment, 2) Add existing file to collection. Returns comprehensive file metadata and collection status. Use working directory context for relative file paths. Supports videos, images, documents, and other file types with automatic MIME type detection.
+
 ### **Discovery & Navigation**
 
 - **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types.
@@ -109,7 +141,8 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **When to Use Which Tool**
 
-- **Start with** `list_collections` and `list_videos` to explore available content
+- **To upload files**: Use `add_file` to upload local files or add existing files to collections
+- **Start exploring**: Use `list_collections` and `list_videos` to explore available content
 - **For single videos**: Use `get_video_description` or `get_video_entities` 
 - **For collections**: Use `retrieve_collection_*` for bulk analysis or `find_video_collection_moments` for targeted searches
 - **For technical specs**: Use `get_video_metadata`
