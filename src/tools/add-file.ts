@@ -26,36 +26,7 @@ export const schema = {
     .optional(),
 };
 
-// Helper function to format file size
-function formatFileSize(bytes: number): string {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let size = bytes;
-  let unitIndex = 0;
-  
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-  
-  return `${size.toFixed(2)} ${units[unitIndex]}`;
-}
 
-// Helper function to detect MIME type
-function getMimeType(fileName: string): string {
-  const ext = path.extname(fileName).toLowerCase();
-  const mimeTypes: Record<string, string> = {
-    '.mp4': 'video/mp4',
-    '.mov': 'video/quicktime',
-    '.avi': 'video/x-msvideo',
-    '.mkv': 'video/x-matroska',
-    '.webm': 'video/webm',
-    '.mpeg': 'video/mpeg',
-    '.mpg': 'video/mpeg',
-    '.ogg': 'video/ogg'
-  };
-  
-  return mimeTypes[ext] || 'application/octet-stream';
-}
 
 export function registerAddFile(
   server: McpServer,
@@ -190,13 +161,11 @@ export function registerAddFile(
 
           const fileName = path.basename(resolvedPath);
           const fileBuffer = await fs.promises.readFile(resolvedPath);
-          const mimeType = getMimeType(fileName);
           
           // Create File object
           const file = new File(
             [fileBuffer],
-            fileName,
-            { type: mimeType }
+            fileName
           );
 
           // Upload file
@@ -204,11 +173,6 @@ export function registerAddFile(
             file,
             metadata: {
               source: 'mcp_local_upload',
-              original_path: resolvedPath,
-              working_dir: workingDir,
-              mime_type: mimeType,
-              file_size: fileStats.size,
-              file_size_formatted: formatFileSize(fileStats.size),
             }
           });
 
