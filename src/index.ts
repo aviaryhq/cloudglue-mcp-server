@@ -16,6 +16,7 @@ import { registerRetrieveCollectionEntities } from "./tools/retrieve-collection-
 import { registerFindVideoCollectionMoments } from "./tools/find-video-collection-moments.js";
 import { registerGetVideoMetadata } from "./tools/get-video-metadata.js";
 import { registerAddFile } from "./tools/add-file.js";
+import { registerCreateCollection } from "./tools/create-collection.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
@@ -65,6 +66,7 @@ registerRetrieveCollectionEntities(server, cgClient);
 registerFindVideoCollectionMoments(server, cgClient);
 registerGetVideoMetadata(server, cgClient);
 registerAddFile(server, cgClient, workingDir);
+registerCreateCollection(server, cgClient);
 
 
 // Run server

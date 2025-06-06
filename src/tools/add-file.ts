@@ -49,14 +49,9 @@ function getMimeType(fileName: string): string {
     '.avi': 'video/x-msvideo',
     '.mkv': 'video/x-matroska',
     '.webm': 'video/webm',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.pdf': 'application/pdf',
-    '.txt': 'text/plain',
-    '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    '.mpeg': 'video/mpeg',
+    '.mpg': 'video/mpeg',
+    '.ogg': 'video/ogg'
   };
   
   return mimeTypes[ext] || 'application/octet-stream';

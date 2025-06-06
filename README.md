@@ -117,6 +117,10 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 - **`add_file`**: Upload local files to Cloudglue or add existing Cloudglue files to collections. Supports two modes: 1) Upload new file with optional collection assignment, 2) Add existing file to collection. Returns comprehensive file metadata and collection status. Use working directory context for relative file paths. Supports videos, images, documents, and other file types with automatic MIME type detection.
 
+### **Collection Management**
+
+- **`create_collection`**: Create a new CloudGlue collection for organizing videos with specific analysis configurations. Supports both rich-transcripts (comprehensive video analysis) and entities (structured data extraction) collection types. Each type has different configuration options for customizing the analysis pipeline. Returns complete collection metadata upon successful creation.
+
 ### **Discovery & Navigation**
 
 - **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types.
@@ -141,6 +145,7 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **When to Use Which Tool**
 
+- **To create collections**: Use `create_collection` to set up new video collections with specific analysis configurations
 - **To upload files**: Use `add_file` to upload local files or add existing files to collections
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
 - **For single videos**: Use `get_video_description` or `get_video_entities` 
@@ -148,6 +153,21 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 - **For technical specs**: Use `get_video_metadata`
 
 All tools include intelligent features like cost optimization, automatic fallbacks, and comprehensive error handling.
+
+### **Collection Types & Configuration**
+
+#### Rich-Transcripts Collections
+Perfect for comprehensive video analysis and content understanding:
+- **`enable_summary`**: AI-generated video summaries 
+- **`enable_scene_text`**: Extract text visible in video frames
+- **`enable_visual_scene_description`**: AI descriptions of visual content
+- **`enable_speech`**: Speech-to-text transcription
+
+#### Entities Collections  
+Ideal for structured data extraction and custom analysis:
+- **`prompt`**: Natural language description of what entities to extract
+- **`schema`**: JSON schema defining the exact structure of extracted data
+- Must provide either `prompt` or `schema` (or both) for entity collections
 
 ## Contact
 
