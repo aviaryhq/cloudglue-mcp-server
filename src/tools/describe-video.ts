@@ -22,13 +22,13 @@ function extractFileIdFromUrl(url: string): string | null {
   return match ? match[1] : null;
 }
 
-export function registerGetVideoDescription(
+export function registerDescribeVideo(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "get_video_description",
-    "Get comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. For individual videos - use retrieve_collection_transcripts for bulk collection analysis. Supports both YouTube and Cloudglue videos with different analysis levels.",
+    "describe_video",
+    "Gets comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_transcripts instead. Supports both YouTube and Cloudglue videos with different analysis levels.",
     schema,
     async ({ url, collection_id, force_new }) => {
       const fileId = extractFileIdFromUrl(url);
