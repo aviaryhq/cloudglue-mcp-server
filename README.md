@@ -35,33 +35,6 @@ Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Mo
       "args": [
         "-y",
         "@aviaryhq/cloudglue-mcp-server@latest"
-      ],
-      "env": {
-        "CLOUDGLUE_API_KEY": "<YOUR-API-KEY>"
-        }
-    }
-  }
-}
-```
-
-Replace `<YOUR-API-KEY>` with the API Key created in step 1. 
-
-### Optional Configuration
-
-You can customize the server with additional CLI arguments:
-
-- `--api-key`: Provide API key directly (alternative to environment variable)
-- `--base-url`: Use custom Cloudglue API endpoint  
-
-Example with custom base URL:
-```json
-{
-  "mcpServers": {
-    "cloudglue": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@aviaryhq/cloudglue-mcp-server@latest"
         "--api-key",
         "<YOUR-API-KEY>"
       ]
@@ -69,6 +42,8 @@ Example with custom base URL:
   }
 }
 ```
+
+Replace `<YOUR-API-KEY>` with the API Key created in step 1. 
 
 ## Local Development Setup
 
