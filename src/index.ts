@@ -8,8 +8,8 @@ import { parseArgs } from "node:util";
 // Import tool registrations
 import { registerListCollections } from "./tools/list-collections.js";
 import { registerListVideos } from "./tools/list-videos.js";
-import { registerGetVideoDescription } from "./tools/get-video-description.js";
-import { registerGetVideoEntities } from "./tools/get-video-entities.js";
+import { registerDescribeVideo } from "./tools/describe-video.js";
+import { registerExtractVideoEntities } from "./tools/extract-video-entities.js";
 import { registerRetrieveCollectionTranscripts } from "./tools/retrieve-collection-transcripts.js";
 import { registerRetrieveCollectionEntities } from "./tools/retrieve-collection-entities.js";
 import { registerFindVideoCollectionMoments } from "./tools/find-video-collection-moments.js";
@@ -51,8 +51,8 @@ const server = new McpServer({
 // Register all tools
 registerListCollections(server, cgClient);
 registerListVideos(server, cgClient);
-registerGetVideoDescription(server, cgClient);
-registerGetVideoEntities(server, cgClient);
+registerDescribeVideo(server, cgClient);
+registerExtractVideoEntities(server, cgClient);
 registerRetrieveCollectionTranscripts(server, cgClient);
 registerRetrieveCollectionEntities(server, cgClient);
 registerFindVideoCollectionMoments(server, cgClient);

@@ -25,12 +25,12 @@ function extractFileIdFromUrl(url: string): string | null {
   return match ? match[1] : null;
 }
 
-export function registerGetVideoEntities(
+export function registerExtractVideoEntities(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "get_video_entities",
+    "extract_video_entities",
     "Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.",
     schema,
     async ({ url, prompt, collection_id, force_new }) => {

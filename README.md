@@ -34,7 +34,7 @@ Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Mo
       "command": "npx",
       "args": [
         "-y",
-        "@aviaryhq/cloudglue-mcp-server@latest"
+        "@aviaryhq/cloudglue-mcp-server@latest",
         "--api-key",
         "<YOUR-API-KEY>"
       ]
@@ -91,26 +91,26 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Individual Video Analysis**
 
-- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization. Use this when you need detailed information about a specific video or a small number of videos. For analyzing multiple videos, start with retrieve_transcript_summaries instead.
+- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization. Use this when you need detailed information about a specific video or a small number of videos. For analyzing multiple videos, start with retrieve_transcript_summaries instead.
 
-- **`get_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.
+- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.
 
-- **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like get_video_description.
+- **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.
 
 ### **Collection Analysis**
 
 - **`retrieve_transcript_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full transcripts and helps you determine if you need more detailed information. Only proceed to retrieve_collection_transcripts if you need the full multimodal context for specific videos identified through the summaries. Returns up to 50 summaries per request with pagination support.
 
-- **`retrieve_collection_transcripts`**: Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this only after using retrieve_transcript_summaries to identify specific videos that need detailed analysis. This tool is more resource-intensive and limited to 10 transcripts per request, so it's best used for targeted analysis of specific videos rather than broad collection overview. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods.
+- **`retrieve_collection_transcripts`**: Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this only after using retrieve_transcript_summaries to identify specific videos that need detailed analysis. This tool is more resource-intensive and limited to 10 transcripts per request, so it's best used for targeted analysis of specific videos rather than broad collection overview. For single videos, use describe_video instead. Use date filtering to focus on specific time periods.
 
-- **`retrieve_collection_entities`**: Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entities instead.
+- **`retrieve_collection_entities`**: Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use extract_video_entities instead.
 
 - **`find_video_collection_moments`**: AI-powered semantic search to find specific moments, topics, or content within a video collection. Returns relevant segments with context, timestamps, and citations. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis across multiple videos. Much more targeted than bulk retrieval tools.
 
 ### **When to Use Which Tool**
 
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
-- **For single videos**: Use `get_video_description` or `get_video_entities` 
+- **For single videos**: Use `describe_video` or `extract_video_entities` 
 - **For collection overview**: Always start with `retrieve_transcript_summaries` to efficiently understand what's in a collection
 - **For detailed analysis**: Only use `retrieve_collection_transcripts` for specific videos that need full multimodal context, identified through summaries
 - **For structured data**: Use `retrieve_collection_entities` for bulk entity extraction
