@@ -11,9 +11,9 @@ export const schema = {
   limit: z
     .number()
     .min(1)
-    .max(50)
-    .describe("Maximum number of entity records to return per request (1-50). Use smaller numbers for initial exploration, larger for comprehensive analysis.")
-    .default(20),
+    .max(10)
+    .describe("Maximum number of entity records to return per request (1-10) with pagination. Use smaller numbers for initial exploration, larger for comprehensive analysis.")
+    .default(5),
   offset: z
     .number()
     .min(0)
@@ -35,7 +35,7 @@ export function registerRetrieveCollectionEntities(
 ) {
   server.tool(
     "retrieve_collection_entities",
-    "Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entity instead.",
+    "Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entity instead. Note: This tool is limited to 10 entities per request so pagination is required to get more than 10 entities.",
     schema,
     async ({ collection_id, limit, offset, created_after, created_before }) => {
       // Get all entities first to apply our own filtering

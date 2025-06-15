@@ -52,9 +52,8 @@ You can customize the server with additional CLI arguments:
 
 - `--api-key`: Provide API key directly (alternative to environment variable)
 - `--base-url`: Use custom Cloudglue API endpoint  
-- `--working-dir`: Set working directory for local file uploads (defaults to home directory)
 
-Example with custom working directory:
+Example with custom base URL:
 ```json
 {
   "mcpServers": {
@@ -62,13 +61,10 @@ Example with custom working directory:
       "command": "npx",
       "args": [
         "-y",
-        "@aviaryhq/cloudglue-mcp-server@latest",
-        "--working-dir",
-        "/path/to/your/videos"
-      ],
-      "env": {
-        "CLOUDGLUE_API_KEY": "<YOUR-API-KEY>"
-        }
+        "@aviaryhq/cloudglue-mcp-server@latest"
+        "--api-key",
+        "<YOUR-API-KEY>"
+      ]
     }
   }
 }
@@ -108,20 +104,9 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
 }
 ```
 
-
 ## Tools
 
 The following Cloudglue tools are available to LLMs through this MCP server:
-
-### **File Management**
-
-- **`add_file`**: Upload local files to Cloudglue or add existing Cloudglue files to collections. Supports two modes: 1) Upload new file with optional collection assignment, 2) Add existing file to collection. Returns comprehensive file metadata and collection status. Use working directory context for relative file paths. Supports videos, images, documents, and other file types with automatic MIME type detection.
-
-### **Collection Management**
-
-- **`create_collection`**: Create a new Cloudglue collection for organizing videos with specific analysis configurations. Supports both rich-transcripts (comprehensive video analysis) and entities (structured data extraction) collection types. Each type has different configuration options for customizing the analysis pipeline. Returns complete collection metadata upon successful creation.
-
-- **`add_youtube`**: Add YouTube videos to a Cloudglue collection with parallel processing. Supports individual video URLs (up to 50), playlist URLs, and channel URLs. For playlists/channels, extracts up to 15 most recent videos using YouTube RSS feeds. **Note: Only YouTube videos with available transcripts can be successfully processed by Cloudglue.** Processes videos in batches of 5 for optimal performance and waits for all to complete before returning the updated collection video list.
 
 ### **Discovery & Navigation**
 
@@ -131,7 +116,7 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Individual Video Analysis**
 
-- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization.
+- **`get_video_description`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization. Use this when you need detailed information about a specific video or a small number of videos. For analyzing multiple videos, start with retrieve_transcript_summaries instead.
 
 - **`get_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.
 
@@ -139,7 +124,9 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Collection Analysis**
 
-- **`retrieve_collection_transcripts`**: Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this for comprehensive analysis of multiple videos in a collection, when you need to compare transcripts, or analyze patterns across content. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods.
+- **`retrieve_transcript_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full transcripts and helps you determine if you need more detailed information. Only proceed to retrieve_collection_transcripts if you need the full multimodal context for specific videos identified through the summaries. Returns up to 50 summaries per request with pagination support.
+
+- **`retrieve_collection_transcripts`**: Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this only after using retrieve_transcript_summaries to identify specific videos that need detailed analysis. This tool is more resource-intensive and limited to 10 transcripts per request, so it's best used for targeted analysis of specific videos rather than broad collection overview. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods.
 
 - **`retrieve_collection_entities`**: Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entities instead.
 
@@ -147,30 +134,15 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **When to Use Which Tool**
 
-- **To create collections**: Use `create_collection` to set up new video collections with specific analysis configurations
-- **To upload files**: Use `add_file` to upload local files or add existing files to collections
-- **To add YouTube content**: Use `add_youtube` to bulk add YouTube videos or playlists to collections
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
 - **For single videos**: Use `get_video_description` or `get_video_entities` 
-- **For collections**: Use `retrieve_collection_*` for bulk analysis or `find_video_collection_moments` for targeted searches
+- **For collection overview**: Always start with `retrieve_transcript_summaries` to efficiently understand what's in a collection
+- **For detailed analysis**: Only use `retrieve_collection_transcripts` for specific videos that need full multimodal context, identified through summaries
+- **For structured data**: Use `retrieve_collection_entities` for bulk entity extraction
+- **For specific content**: Use `find_video_collection_moments` for targeted semantic search
 - **For technical specs**: Use `get_video_metadata`
 
 All tools include intelligent features like cost optimization, automatic fallbacks, and comprehensive error handling.
-
-### **Collection Types & Configuration**
-
-#### Rich-Transcripts Collections
-Perfect for comprehensive video analysis and content understanding:
-- **`enable_summary`**: AI-generated video summaries 
-- **`enable_scene_text`**: Extract text visible in video frames
-- **`enable_visual_scene_description`**: AI descriptions of visual content
-- **`enable_speech`**: Speech-to-text transcription
-
-#### Entities Collections  
-Ideal for structured data extraction and custom analysis:
-- **`prompt`**: Natural language description of what entities to extract
-- **`schema`**: JSON schema defining the exact structure of extracted data
-- Must provide either `prompt` or `schema` (or both) for entity collections
 
 ## Contact
 

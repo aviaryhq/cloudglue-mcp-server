@@ -11,31 +11,31 @@ export const schema = {
   limit: z
     .number()
     .min(1)
-    .max(10)
-    .describe("Maximum number of transcripts to return per request (1-10) with pagination. Use smaller numbers for initial exploration, larger for comprehensive analysis.")
-    .default(5),
+    .max(50)
+    .describe("Maximum number of summaries to return per request (1-50) with pagination. Use smaller numbers for initial exploration, larger for comprehensive collection overview.")
+    .default(25),
   offset: z
     .number()
     .min(0)
-    .describe("Number of transcripts to skip for pagination (e.g., offset=10, limit=10 gets transcripts 11-20). Use to page through large collections.")
+    .describe("Number of summaries to skip for pagination (e.g., offset=25, limit=25 gets summaries 26-50). Use to page through large collections.")
     .default(0),
   created_after: z
     .string()
-    .describe("Only include transcripts created after this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing recent additions to a collection.")
+    .describe("Only include summaries created after this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing recent additions to a collection.")
     .optional(),
   created_before: z
     .string()
-    .describe("Only include transcripts created before this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing historical content.")
+    .describe("Only include summaries created before this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing historical content.")
     .optional(),
 };
 
-export function registerRetrieveCollectionTranscripts(
+export function registerRetrieveTranscriptSummaries(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "retrieve_collection_transcripts",
-    "Bulk retrieve rich multimodal transcripts (text, audio, and visual) from a collection with advanced filtering. Use this for comprehensive analysis of multiple videos in a collection, when you need to compare transcripts, or analyze patterns across content. For single videos, use get_video_description instead. Use date filtering to focus on specific time periods. Note: This tool is limited to 10 transcripts per request so pagination is required to get more than 10 transcripts.",
+    "retrieve_transcript_summaries",
+    "Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Use this as your first step when analyzing a collection - it's more efficient than retrieving full transcripts and helps you determine if you need more detailed information. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Only proceed to retrieve_collection_transcripts if you need the full multimodal context for specific videos identified through the summaries. For single videos, use get_video_description instead. Returns up to 50 summaries per request with pagination support.",
     schema,
     async ({ collection_id, limit, offset, created_after, created_before }) => {
       // Get all transcripts first to apply our own filtering
@@ -52,7 +52,6 @@ export function registerRetrieveCollectionTranscripts(
       // Apply date filtering if requested
       if (created_after || created_before) {
         filteredTranscripts = filteredTranscripts.filter((transcript: any) => {
-          // Assume transcript has created_at or similar date field
           const transcriptDate = new Date(transcript.created_at || transcript.added_at || 0);
           
           if (created_after) {
@@ -72,12 +71,19 @@ export function registerRetrieveCollectionTranscripts(
       // Apply pagination
       const paginatedTranscripts = filteredTranscripts.slice(offset, offset + limit);
       
+      // Extract only title and summary information
+      const summaries = paginatedTranscripts.map((transcript: any) => ({
+        title: transcript.data.title || transcript.data.filename || 'Untitled',
+        summary: transcript.data.summary || 'No summary available',
+        file_id: transcript.file_id
+      }));
+      
       const result = {
-        transcripts: paginatedTranscripts,
+        summaries,
         pagination: {
           offset,
           limit,
-          total_returned: paginatedTranscripts.length,
+          total_returned: summaries.length,
           total_filtered: filteredTranscripts.length,
           has_more: offset + limit < filteredTranscripts.length
         },
