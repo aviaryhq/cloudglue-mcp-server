@@ -91,9 +91,9 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Individual Video Analysis**
 
-- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Supports customizable summarization. Use this when you need detailed information about a specific video or a small number of videos. For analyzing multiple videos, start with retrieve_transcript_summaries instead.
+- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos (YouTube or Cloudglue upload) with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_transcripts instead. Supports both YouTube and Cloudglue videos with different analysis levels.
 
-- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. For individual videos - use retrieve_collection_entities for bulk collection analysis. The quality of results depends heavily on your prompt specificity.
+- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. The quality of results depends heavily on your prompt specificity.
 
 - **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.
 
