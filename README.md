@@ -36,14 +36,14 @@ Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Mo
         "-y",
         "@aviaryhq/cloudglue-mcp-server@latest",
         "--api-key",
-        "<YOUR-API-KEY>"
+        "<CLOUDGLUE-YOUR-API-KEY>"
       ]
     }
   }
 }
 ```
 
-Replace `<YOUR-API-KEY>` with the API Key created in step 1. 
+Replace `<CLOUDGLUE-YOUR-API-KEY>` with the API Key created in step 1.
 
 ## Local Development Setup
 
@@ -72,7 +72,7 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
           "args": [
               "/ABSOLUTE/PATH/TO/PARENT/FOLDER/cloudglue-mcp-server/build/index.js",
               "--api-key",
-              "<YOUR-API-KEY>"
+              "<CLOUDGLUE-YOUR-API-KEY>"
           ]
       }
   }
