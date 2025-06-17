@@ -4,20 +4,17 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CloudGlue } from "@aviaryhq/cloudglue-js";
 import * as dotenv from "dotenv";
 import { parseArgs } from "node:util";
-import * as os from "os";
 
 // Import tool registrations
 import { registerListCollections } from "./tools/list-collections.js";
 import { registerListVideos } from "./tools/list-videos.js";
-import { registerGetVideoDescription } from "./tools/get-video-description.js";
-import { registerGetVideoEntities } from "./tools/get-video-entities.js";
+import { registerDescribeVideo } from "./tools/describe-video.js";
+import { registerExtractVideoEntities } from "./tools/extract-video-entities.js";
 import { registerRetrieveCollectionTranscripts } from "./tools/retrieve-collection-transcripts.js";
 import { registerRetrieveCollectionEntities } from "./tools/retrieve-collection-entities.js";
 import { registerFindVideoCollectionMoments } from "./tools/find-video-collection-moments.js";
 import { registerGetVideoMetadata } from "./tools/get-video-metadata.js";
-import { registerAddFile } from "./tools/add-file.js";
-import { registerCreateCollection } from "./tools/create-collection.js";
-import { registerAddYoutube } from "./tools/add-youtube.js";
+import { registerRetrieveTranscriptSummaries } from "./tools/retrieve-transcript-summaries.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
@@ -28,17 +25,11 @@ const { values: args } = parseArgs({
     "base-url": {
       type: "string",
     },
-    "working-dir": {
-      type: "string",
-    },
   },
 });
 
 // Load environment variables from .env file
 dotenv.config();
-
-// Set working directory (default to OS home directory)
-const workingDir = args["working-dir"] || process.env.CLOUDGLUE_WORKING_DIR || os.homedir();
 
 const cgClient = new CloudGlue({
   apiKey: args["api-key"] || process.env.CLOUDGLUE_API_KEY,
@@ -50,7 +41,7 @@ const cgClient = new CloudGlue({
 // Create server instance
 const server = new McpServer({
   name: "cloudglue-mcp-server",
-  version: "0.1.1",
+  version: "0.1.2",
   capabilities: {
     resources: {},
     tools: {},
@@ -60,16 +51,13 @@ const server = new McpServer({
 // Register all tools
 registerListCollections(server, cgClient);
 registerListVideos(server, cgClient);
-registerGetVideoDescription(server, cgClient);
-registerGetVideoEntities(server, cgClient);
+registerDescribeVideo(server, cgClient);
+registerExtractVideoEntities(server, cgClient);
 registerRetrieveCollectionTranscripts(server, cgClient);
 registerRetrieveCollectionEntities(server, cgClient);
 registerFindVideoCollectionMoments(server, cgClient);
 registerGetVideoMetadata(server, cgClient);
-registerCreateCollection(server, cgClient);
-registerAddFile(server, cgClient, workingDir);
-registerAddYoutube(server, cgClient);
-
+registerRetrieveTranscriptSummaries(server, cgClient);
 
 // Run server
 async function main() {

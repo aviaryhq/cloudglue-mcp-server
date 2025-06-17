@@ -31,7 +31,7 @@ export const schema = {
 export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "list_videos",
-    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools.",
+    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. Use pagination to get more than 10 videos.",
     schema,
     async ({ limit, offset, collection_id, created_after, created_before }) => {
       let videos: any[] = [];
