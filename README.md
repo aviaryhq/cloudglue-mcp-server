@@ -105,7 +105,7 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 - **`retrieve_collection_entities`**: Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use extract_video_entities instead.
 
-- **`find_video_collection_moments`**: AI-powered semantic search to find specific moments, topics, or content within a video collection. Returns relevant segments with context, timestamps, and citations. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis across multiple videos. Much more targeted than bulk retrieval tools.
+- **`find_video_collection_moments`**: AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments, topics, or content across multiple videos. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis.
 
 ### **When to Use Which Tool**
 

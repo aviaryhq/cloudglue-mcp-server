@@ -27,76 +27,30 @@ export function registerFindVideoCollectionMoments(
 ) {
   server.tool(
     "find_video_collection_moments",
-    "AI-powered semantic search to find specific moments, topics, or content within a video collection. Returns relevant segments with context, timestamps, and citations. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis across multiple videos. Much more targeted than bulk retrieval tools.",
+    "AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments, topics, or content across multiple videos. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis.",
     schema,
     async ({ collection_id, query, max_results }) => {
       try {
-        // Enhance the query to specifically ask for video moments and context
-        const enhancedPrompt = `Find and describe the most relevant video moments/segments related to: "${query}". 
-
-For each relevant moment, provide:
-1. The specific video file ID or name if available
-2. Timestamp or time range if available  
-3. Brief description of what happens in that moment
-4. Direct quote or summary of the content
-5. Why this moment is relevant to the query
-
-Limit to the top ${max_results} most relevant moments.`;
-
-        const response = await cgClient.chat.createCompletion({
-          model: "nimbus-001",
-          messages: [
-            {
-              role: "user",
-              content: enhancedPrompt,
-            },
-          ],
+        const response = await cgClient.search.searchContent({
           collections: [collection_id],
-          force_search: true,
-          include_citations: true,
-          max_tokens: 8000,
+          query: query,
+          limit: max_results,
+          scope: "segment",
         });
 
-        if (response.choices?.[0]?.message?.content) {
-          const content = response.choices[0].message.content;
-          const citations = response.choices[0].citations || [];
-
-          // Format the response with both content and structured citations
-          const result = {
-            query: query,
-            collection_id: collection_id,
-            moments_found: content,
-            citations: citations.map((citation: any) => ({
-              file_id: citation.file_id || null,
-              snippet: citation.snippet || null,
-              timestamp: citation.timestamp || null,
-              relevance_score: citation.score || null,
-              metadata: citation.metadata || null
-            })),
-            total_citations: citations.length
-          };
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: JSON.stringify(result, null, 2),
-              },
-            ],
-          };
-        }
+        // Format the response with search results
+        const result = {
+          query: query,
+          collection_id: collection_id,
+          moments_found: response.results || [],
+          total_results: response.results?.length || 0
+        };
 
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                query: query,
-                collection_id: collection_id,
-                error: "No relevant moments found or empty response from AI",
-                moments_found: null,
-                citations: []
-              }, null, 2),
+              text: JSON.stringify(result, null, 2),
             },
           ],
         };
