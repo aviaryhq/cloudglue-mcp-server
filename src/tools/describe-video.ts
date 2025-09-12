@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to transcribe. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or Cloudglue URLs (cloudglue://files/file-id). For Cloudglue URLs, use the file ID from list_videos."),
+    .describe("Video URL to transcribe. Supports YouTube URLs (https://www.youtube.com/watch?v=...), Cloudglue URLs (cloudglue://files/file-id), or direct HTTP video URLs. For Cloudglue URLs, use the file ID from list_videos."),
   collection_id: z
     .string()
     .describe("Optional collection ID to check for existing transcripts first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs.")
@@ -28,7 +28,7 @@ export function registerDescribeVideo(
 ) {
   server.tool(
     "describe_video",
-    "Gets comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_transcripts instead. Supports both YouTube and Cloudglue videos with different analysis levels.",
+    "Gets comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_descriptions instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels.",
     schema,
     async ({ url, collection_id, force_new }) => {
       const fileId = extractFileIdFromUrl(url);

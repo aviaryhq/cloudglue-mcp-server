@@ -29,13 +29,13 @@ export const schema = {
     .optional(),
 };
 
-export function registerRetrieveCollectionEntities(
+export function registerRetrieveEntities(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "retrieve_collection_entities",
-    "Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use get_video_entity instead. Note: This tool is limited to 10 entities per request so pagination is required to get more than 10 entities.",
+    "retrieve_entities",
+    "Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. Supports pagination and date-based filtering to manage large result sets. For individual video entities, use extract_video_entities instead. Note: This tool is limited to 10 entities per request so pagination is required to get more than 10 entities. **Pagination guidance**: For comprehensive entity analysis, paginate through all entities (check `has_more` and increment `offset` by `limit`) to ensure complete data coverage. Use date filtering to focus on specific time periods, then paginate within those results. Essential for building complete datasets or performing exhaustive entity analysis.",
     schema,
     async ({ collection_id, limit, offset, created_after, created_before }) => {
       // Get all entities first to apply our own filtering
@@ -77,8 +77,7 @@ export function registerRetrieveCollectionEntities(
         pagination: {
           offset,
           limit,
-          total_returned: paginatedEntities.length,
-          total_filtered: filteredEntities.length,
+          total: entities.total,
           has_more: offset + limit < filteredEntities.length
         },
         collection_id,

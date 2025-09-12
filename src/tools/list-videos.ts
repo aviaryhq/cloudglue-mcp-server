@@ -31,16 +31,18 @@ export const schema = {
 export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "list_videos",
-    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. Use pagination to get more than 10 videos.",
+    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. **Pagination guidance**: For exhaustive exploration, paginate through all videos (check `has_more` and increment `offset` by `limit`) to ensure complete coverage. Use date filtering to focus on specific time periods, then paginate within those results.",
     schema,
     async ({ limit, offset, collection_id, created_after, created_before }) => {
       let videos: any[] = [];
+      let totalCount: number = 0;
 
       if (collection_id) {
         // If collection_id is provided, get videos from that collection
         const collectionVideos = await cgClient.collections.listVideos(collection_id, {
           limit: limit + offset, // Get more to handle offset
         });
+        totalCount = collectionVideos.total;
 
         // Get detailed info for each video and apply filtering
         const processedVideos = await Promise.all(
@@ -71,6 +73,7 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
         const files = await cgClient.files.listFiles({ 
           limit: limit + offset, // Get more to handle offset
         });
+        totalCount = files.total;
         
         videos = files.data
           .filter(file => file.status === "completed")
@@ -118,7 +121,7 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
               pagination: {
                 offset,
                 limit,
-                total_returned: paginatedVideos.length,
+                total: totalCount,
                 has_more: offset + limit < videos.length
               }
             }, null, 2),

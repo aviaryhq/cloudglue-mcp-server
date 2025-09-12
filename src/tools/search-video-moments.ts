@@ -21,13 +21,13 @@ export const schema = {
     .default(5),
 };
 
-export function registerFindVideoCollectionMoments(
+export function registerSearchVideoMoments(
   server: McpServer,
   cgClient: CloudGlue,
 ) {
   server.tool(
-    "find_video_collection_moments",
-    "AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments, topics, or content across multiple videos. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack content, specific discussions, or thematic analysis.",
+    "search_video_moments",
+    "AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments across speech, on-screen text, and visual descriptions. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack spoken and visual content, specific discussions, or thematic analysis.",
     schema,
     async ({ collection_id, query, max_results }) => {
       try {
