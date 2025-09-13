@@ -10,11 +10,12 @@ import { registerListCollections } from "./tools/list-collections.js";
 import { registerListVideos } from "./tools/list-videos.js";
 import { registerDescribeVideo } from "./tools/describe-video.js";
 import { registerExtractVideoEntities } from "./tools/extract-video-entities.js";
-import { registerRetrieveCollectionTranscripts } from "./tools/retrieve-collection-transcripts.js";
-import { registerRetrieveCollectionEntities } from "./tools/retrieve-collection-entities.js";
-import { registerFindVideoCollectionMoments } from "./tools/find-video-collection-moments.js";
+import { registerRetrieveDescriptions } from "./tools/retrieve-descriptions.js";
+import { registerRetrieveEntities } from "./tools/retrieve-entities.js";
+import { registerSearchVideoMoments } from "./tools/search-video-moments.js";
+import { registerSearchVideoSummaries } from "./tools/search-video-summaries.js";
 import { registerGetVideoMetadata } from "./tools/get-video-metadata.js";
-import { registerRetrieveTranscriptSummaries } from "./tools/retrieve-transcript-summaries.js";
+import { registerRetrieveSummaries } from "./tools/retrieve-summaries.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
@@ -41,7 +42,7 @@ const cgClient = new CloudGlue({
 // Create server instance
 const server = new McpServer({
   name: "cloudglue-mcp-server",
-  version: "0.1.2",
+  version: "0.1.4",
   capabilities: {
     resources: {},
     tools: {},
@@ -53,11 +54,12 @@ registerListCollections(server, cgClient);
 registerListVideos(server, cgClient);
 registerDescribeVideo(server, cgClient);
 registerExtractVideoEntities(server, cgClient);
-registerRetrieveCollectionTranscripts(server, cgClient);
-registerRetrieveCollectionEntities(server, cgClient);
-registerFindVideoCollectionMoments(server, cgClient);
+registerRetrieveDescriptions(server, cgClient);
+registerRetrieveSummaries(server, cgClient);
+registerRetrieveEntities(server, cgClient);
+registerSearchVideoMoments(server, cgClient);
+registerSearchVideoSummaries(server, cgClient);
 registerGetVideoMetadata(server, cgClient);
-registerRetrieveTranscriptSummaries(server, cgClient);
 
 // Run server
 async function main() {

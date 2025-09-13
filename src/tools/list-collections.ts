@@ -9,9 +9,14 @@ export const schema = {
     .max(100)
     .describe("Maximum number of collections to return (1-100). Start with smaller numbers for initial exploration.")
     .default(10),
+  offset: z
+    .number()
+    .min(0)
+    .describe("Number of collections to skip for pagination (e.g., offset=10, limit=10 gets collections 11-20). Use to page through large lists of collections.")
+    .default(0),
   collection_type: z
     .string()
-    .describe("Filter by collection type: 'rich-transcripts' (for video transcripts/descriptions) or 'entities' (for structured data extraction). Leave empty to see all types.")
+    .describe("Filter by collection type: 'rich-transcripts', 'media-descriptions', or 'entities'. Leave empty to see all types.")
     .optional(),
 };
 
@@ -21,12 +26,13 @@ export function registerListCollections(
 ) {
   server.tool(
     "list_collections",
-    "Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types.",
+    "Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. **Pagination guidance**: For comprehensive exploration, paginate through all collections (check `has_more` and increment `offset` by `limit`) to ensure you don't miss any collections. Use smaller limits (5-10) for quick overviews, larger limits (25-50) for thorough exploration.",
     schema,
-    async ({ limit, collection_type }) => {
+    async ({ limit, offset, collection_type }) => {
       const collections = await cgClient.collections.listCollections({
         limit: limit,
-        ...(collection_type && { collection_type: collection_type as "rich-transcripts" | "entities" }),
+        offset: offset,
+        ...(collection_type && { collection_type: collection_type as "rich-transcripts" | "media-descriptions" | "entities" }),
       });
 
       // Process each collection to get video counts and selective fields
@@ -52,11 +58,21 @@ export function registerListCollections(
         })
       );
 
+      const result = {
+        collections: processedCollections,
+        pagination: {
+          offset,
+          limit,
+          total: collections.total,
+          has_more: processedCollections.length === limit
+        }
+      };
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(processedCollections, null, 2),
+            text: JSON.stringify(result, null, 2),
           },
         ],
       };

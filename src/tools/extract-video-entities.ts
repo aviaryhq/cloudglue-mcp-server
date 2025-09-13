@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to extract entities from. Supports YouTube URLs (https://www.youtube.com/watch?v=...) or Cloudglue URLs (cloudglue://files/file-id). For Cloudglue URLs, use the file ID from list_videos."),
+    .describe("Video URL to extract entities from. Supports YouTube URLs (https://www.youtube.com/watch?v=...), Cloudglue URLs (cloudglue://files/file-id), or direct HTTP video URLs. For Cloudglue URLs, use the file ID from list_videos."),
   prompt: z
     .string()
     .describe("Detailed extraction prompt that guides what entities to find. Examples: 'Extract speaker names, key topics, and action items', 'Find product names, prices, and features mentioned', 'Identify companies, people, and technologies discussed'. Be specific about the data structure you want."),
@@ -31,7 +31,7 @@ export function registerExtractVideoEntities(
 ) {
   server.tool(
     "extract_video_entities",
-    "Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. The quality of results depends heavily on your prompt specificity.",
+    "Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs. The quality of results depends heavily on your prompt specificity.",
     schema,
     async ({ url, prompt, collection_id, force_new }) => {
       const fileId = extractFileIdFromUrl(url);
