@@ -32,11 +32,12 @@ const { values: args } = parseArgs({
 // Load environment variables from .env file
 dotenv.config();
 
+const apiKey = args["api-key"] || process.env.CLOUDGLUE_API_KEY;
+const baseUrl = args["base-url"] || process.env.CLOUDGLUE_BASE_URL;
+
 const cgClient = new CloudGlue({
-  apiKey: args["api-key"] || process.env.CLOUDGLUE_API_KEY,
-  ...(args["base-url"] || process.env.CLOUDGLUE_BASE_URL ? {
-    baseUrl: args["base-url"] || process.env.CLOUDGLUE_BASE_URL,
-  } : {}),
+  apiKey,
+  baseUrl,
 });
 
 // Create server instance
