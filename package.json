@@ -7,7 +7,7 @@
     "cloudglue-mcp-server": "build/index.js"
   },
   "scripts": {
-    "build": "tsc && shx chmod +x build/*.js",
+    "build": "tsc && shx chmod +x build/*.js && mcpb pack",
     "watch": "tsc --watch",
     "prepare": "npm run build",
     "format": "prettier --write src/**/*.ts"
@@ -24,6 +24,7 @@
   "license": "Elastic-2.0",
   "description": "Cloudglue MCP Server",
   "dependencies": {
+    "@anthropic-ai/mcpb": "^1.1.1",
     "@aviaryhq/cloudglue-js": "^0.2.1",
     "@modelcontextprotocol/sdk": "^1.18.0",
     "dotenv": "^16.4.7",
