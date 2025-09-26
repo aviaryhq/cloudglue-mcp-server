@@ -139,3 +139,5 @@ dist
 .pnp.*
 
 .DS_Store
+
+cloudglue-mcp-server.mcpb
