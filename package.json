@@ -24,7 +24,6 @@
   "license": "Elastic-2.0",
   "description": "Cloudglue MCP Server",
   "dependencies": {
-    "@anthropic-ai/mcpb": "^1.1.1",
     "@aviaryhq/cloudglue-js": "^0.2.1",
     "@modelcontextprotocol/sdk": "^1.18.0",
     "dotenv": "^16.4.7",
@@ -32,6 +31,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "^1.1.1",
     "@types/node": "^22.14.1",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3"
