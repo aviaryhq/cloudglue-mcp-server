@@ -55,6 +55,12 @@ Replace `<CLOUDGLUE-YOUR-API-KEY>` with the API Key created earlier.
 
 # Local Development
 
+## Prerequisites
+
+First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your Cloudglue account.
+
+## Build the server
+
 1. Clone the repo
 2. Install dependencies using `npm install`
 3. Build the server + Claude Desktop Extension using `npm build`
@@ -77,6 +83,8 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
   }
 }
 ```
+
+# Documentation
 
 ## Tools
 
