@@ -1,4 +1,4 @@
-name: Build & Release (MCP)
+name: Build & Release Claude Desktop Extension
 
 on:
   push:
@@ -39,13 +39,9 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Generate timestamp
-        id: ts
-        run: echo "ts=$(date -u +'%Y%m%dT%H%M%SZ')" >> "$GITHUB_OUTPUT"
-
       - name: Compose tag
         id: ver
-        run: echo "tag=v${{ steps.pkg.outputs.version }}+${{ steps.ts.outputs.ts }}" >> "$GITHUB_OUTPUT"
+        run: echo "tag=v${{ steps.pkg.outputs.version }}" >> "$GITHUB_OUTPUT"
 
       - name: SHA256 checksum
         run: sha256sum cloudglue-mcp-server.mcpb > SHA256SUMS.txt
