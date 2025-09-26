@@ -109,6 +109,10 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 - **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.
 
+- **`segment_video_camera_shots`**: Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns timestamps and metadata for each camera shot detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.
+
+- **`segment_video_chapters`**: Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.
+
 ### **Collection Analysis**
 
 - **`retrieve_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. Only proceed to retrieve_descriptions if you need the full multimodal context for specific videos identified through the summaries. For targeted content discovery, consider using search_video_summaries or search_video_moments instead of browsing through all summaries. **Pagination guidance**: For comprehensive collection analysis, paginate through all summaries (check `has_more` and increment `offset` by `limit`) to ensure complete coverage. Use larger limits (25-50) for efficient bulk analysis, smaller limits (5-10) for targeted exploration.
@@ -147,7 +151,7 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 ### **When to Use Which Tool**
 
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
-- **For single videos**: Use `describe_video` or `extract_video_entities`
+- **For single videos**: Use `describe_video`, `extract_video_entities`, `segment_video_camera_shots`, or `segment_video_chapters`
 - **For collection overview**: Always start with `retrieve_summaries` to efficiently understand what's in a collection
 - **For detailed analysis**: Only use `retrieve_descriptions` for specific videos that need full multimodal context, identified through summaries
 - **For structured data**: Use `retrieve_entities` for bulk entity extraction
