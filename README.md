@@ -1,13 +1,13 @@
 # Cloudglue MCP Server
 
-[![NPM Version](https://img.shields.io/npm/v/%40aviaryhq%2Fcloudglue-mcp-server)](https://www.npmjs.com/package/@aviaryhq/cloudglue-mcp-server) 
+[![NPM Version](https://img.shields.io/npm/v/%40aviaryhq%2Fcloudglue-mcp-server)](https://www.npmjs.com/package/@aviaryhq/cloudglue-mcp-server)
 [![License](https://img.shields.io/badge/License-ELv2-blue.svg)](LICENSE.md)
 ![MCP](https://badge.mcpx.dev?status=on 'MCP Enabled')
 [![Discord](https://img.shields.io/discord/1366541583272382536?logo=discord&label=Discord)](https://discord.gg/QD5KWFVner)
 
 Connect Cloudglue to Cursor, Claude Desktop, and other AI assistants to unlock the power of video collection understanding. Cloudglue helps turn your videos into structured data ready for LLMs.
 
-## 📖 Resources
+# 📖 Resources
 
 - [Model Context Protocol](https://modelcontextprotocol.io/introduction)
 - [Cloudglue API Docs](https://docs.cloudglue.dev)
@@ -17,15 +17,15 @@ Connect Cloudglue to Cursor, Claude Desktop, and other AI assistants to unlock t
 
 > By using the Cloudglue SDK and/or the MCP server, you agree to the [Cloudglue Terms of Service](https://cloudglue.dev/terms) and acknowledge our [Privacy Policy](https://cloudglue.dev/privacy).
 
-## Setup
+# Usage
 
-### 1. API Key
+## Prerequisites
 
 First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your Cloudglue account.
 
-### 2. Configure MCP client
+### A. On any MCP client using a JSON configuration
 
-Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Most MCP clients store the configuration as JSON, for `cloudglue-mcp-server` this would look like the following:
+Most MCP clients store their configuration as JSON. For `cloudglue-mcp-server` this would look like the following:
 
 ```json
 {
@@ -43,38 +43,37 @@ Next, configure your MCP client (e.g. Claude Desktop) to use this MCP server. Mo
 }
 ```
 
-Replace `<CLOUDGLUE-YOUR-API-KEY>` with the API Key created in step 1.
+Replace `<CLOUDGLUE-YOUR-API-KEY>` with the API Key created earlier.
 
-## Local Development Setup
+### B. On Claude Desktop using Desktop Extensions
 
-### 1. API Key
+1. Download the latest Cloudglue Claude Desktop Extension (cloudglue-mcp-server.mcpb) from [the releases page](https://github.com/aviaryhq/cloudglue-mcp-server/releases/)
+2. Double click to open with Claude Desktop (you need to have Claude Desktop running prior to this)
+3. Click 'Install'
+4. When prompted, enter your API key
+5. Enable the extension
 
-First, get a Cloudglue API Key from [cloudglue.dev](http://cloudglue.dev), this will be used to authenticate the MCP server with your Cloudglue account.
+# Local Development
 
-### 2. Install and build server locally
+1. Clone the repo
+2. Install dependencies using `npm install`
+3. Build the server + Claude Desktop Extension using `npm build`
 
-You can build this server locally via:
-
-```bash
-npm install
-npm run build
-```
-
-### 3. Configure MCP client
+## Configure your MCP client
 
 Next, configure your MCP client (such as Cursor) to use this server. Most MCP clients store the configuration as JSON in the following format:
 
 ```json
 {
   "mcpServers": {
-      "cloudglue-mcp-server": {
-          "command": "node",
-          "args": [
-              "/ABSOLUTE/PATH/TO/PARENT/FOLDER/cloudglue-mcp-server/build/index.js",
-              "--api-key",
-              "<CLOUDGLUE-YOUR-API-KEY>"
-          ]
-      }
+    "cloudglue-mcp-server": {
+      "command": "node",
+      "args": [
+        "/ABSOLUTE/PATH/TO/PARENT/FOLDER/cloudglue-mcp-server/build/index.js",
+        "--api-key",
+        "<CLOUDGLUE-YOUR-API-KEY>"
+      ]
+    }
   }
 }
 ```
@@ -112,12 +111,14 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 ### **Pagination Strategy**
 
 **When to Paginate Exhaustively:**
+
 - User asks for "all" or "complete" analysis of collections/videos
 - User wants comprehensive coverage or exhaustive exploration
 - User requests data mining, dataset building, or complete entity extraction
 - User asks for "everything" in a collection or time period
 
 **How to Paginate:**
+
 1. Start with initial request (offset=0, appropriate limit)
 2. Check response `pagination.has_more` field
 3. If `has_more: true`, increment `offset` by `limit` and repeat
@@ -125,14 +126,15 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 5. Use date filtering first to narrow scope, then paginate within results
 
 **Limit Guidelines:**
+
 - **Quick overviews**: 5-10 items
-- **Comprehensive analysis**: 25-50 items  
+- **Comprehensive analysis**: 25-50 items
 - **Exhaustive exploration**: Use maximum limits (50 for summaries, 10 for descriptions/entities)
 
 ### **When to Use Which Tool**
 
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
-- **For single videos**: Use `describe_video` or `extract_video_entities` 
+- **For single videos**: Use `describe_video` or `extract_video_entities`
 - **For collection overview**: Always start with `retrieve_summaries` to efficiently understand what's in a collection
 - **For detailed analysis**: Only use `retrieve_descriptions` for specific videos that need full multimodal context, identified through summaries
 - **For structured data**: Use `retrieve_entities` for bulk entity extraction
@@ -143,5 +145,5 @@ All tools include intelligent features like cost optimization, automatic fallbac
 
 ## Contact
 
-* [Open an Issue](https://github.com/aviaryhq/cloudglue-mcp-server/issues/new)
-* [Email](mailto:support@cloudglue.dev)
+- [Open an Issue](https://github.com/aviaryhq/cloudglue-mcp-server/issues/new)
+- [Email](mailto:support@cloudglue.dev)
