@@ -1,0 +1,67 @@
+name: Build & Release (MCP)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Ensure artifact exists
+        run: test -f cloudglue-mcp-server.mcpb
+
+      - name: Read package.json version
+        id: pkg
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Generate timestamp
+        id: ts
+        run: echo "ts=$(date -u +'%Y%m%dT%H%M%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Compose tag
+        id: ver
+        run: echo "tag=v${{ steps.pkg.outputs.version }}+${{ steps.ts.outputs.ts }}" >> "$GITHUB_OUTPUT"
+
+      - name: SHA256 checksum
+        run: sha256sum cloudglue-mcp-server.mcpb > SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            cloudglue-mcp-server.mcpb
+            SHA256SUMS.txt
+          body: |
+            Version: ${{ steps.pkg.outputs.version }}
+            Commit: ${{ github.sha }}
+            Ref: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

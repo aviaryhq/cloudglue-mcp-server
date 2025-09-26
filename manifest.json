@@ -1,0 +1,104 @@
+{
+  "manifest_version": "0.2",
+  "name": "@aviaryhq/cloudglue-mcp-server",
+  "version": "0.1.4",
+  "description": "Cloudglue MCP Server",
+  "icon": "assets/icon.png",
+  "author": {
+    "name": "Aviary Inc."
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "build/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/build/index.js"],
+      "env": {
+        "CLOUDGLUE_API_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "API Key",
+      "description": "Your API key for authentication",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "tools": [
+    {
+      "name": "list_collections",
+      "description": "Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types."
+    },
+    {
+      "name": "list_videos",
+      "description": "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools."
+    },
+    {
+      "name": "describe_video",
+      "description": "Gets comprehensive video transcripts and descriptions with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_descriptions instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels."
+    },
+    {
+      "name": "extract_video_entities",
+      "description": "Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs."
+    },
+    {
+      "name": "get_video_metadata",
+      "description": "Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis."
+    },
+    {
+      "name": "retrieve_summaries",
+      "description": "Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query."
+    },
+    {
+      "name": "retrieve_descriptions",
+      "description": "Bulk retrieve rich multimodal descriptions (text, audio, and visual) from a collection with advanced filtering. Works with both rich-transcripts and media-descriptions collections. Use this only after using retrieve_summaries to identify specific videos that need detailed analysis."
+    },
+    {
+      "name": "retrieve_entities",
+      "description": "Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale."
+    },
+    {
+      "name": "search_video_moments",
+      "description": "AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments across speech, on-screen text, and visual descriptions. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack spoken and visual content, specific discussions, or thematic analysis."
+    },
+    {
+      "name": "search_video_summaries",
+      "description": "AI-powered semantic search to find relevant videos within a collection. Uses Cloudglue's search API to locate videos based on their content, summaries, and metadata. Works with rich-transcripts and media-descriptions collections. Returns structured search results with video information and relevance scores. Perfect for discovering videos by topic, theme, or content similarity."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "analyze_video_collection",
+      "description": "Analyze a video collection to understand its content, themes, and key insights",
+      "arguments": ["collection_id"],
+      "text": "Please analyze the video collection with ID '${arguments.collection_id}'. Start by listing the collection details, then retrieve summaries to understand the content themes, and provide insights about what this collection contains and its potential value."
+    },
+    {
+      "name": "find_specific_content",
+      "description": "Search for specific content or topics within video collections",
+      "arguments": ["query", "collection_id"],
+      "text": "Search for content related to '${arguments.query}' in the collection '${arguments.collection_id}'. Use semantic search to find relevant video moments and summaries, then provide a comprehensive overview of what was found with timestamps and context."
+    },
+    {
+      "name": "extract_entities_from_video",
+      "description": "Extract structured entities and data from a specific video",
+      "arguments": ["video_url", "extraction_prompt"],
+      "text": "Extract entities from the video at '${arguments.video_url}' using the following extraction criteria: '${arguments.extraction_prompt}'. Provide structured data about the entities found, including their types, relationships, and relevant context."
+    },
+    {
+      "name": "video_content_summary",
+      "description": "Get a comprehensive summary of video content",
+      "arguments": ["video_url"],
+      "text": "Provide a comprehensive analysis of the video at '${arguments.video_url}'. Include transcript, key topics discussed, visual elements, and main insights. Format the response in a clear, structured way that highlights the most important information."
+    },
+    {
+      "name": "collection_data_mining",
+      "description": "Perform data mining and analysis across multiple videos in a collection",
+      "arguments": ["collection_id", "analysis_focus"],
+      "text": "Perform comprehensive data mining on collection '${arguments.collection_id}' focusing on '${arguments.analysis_focus}'. Retrieve all summaries, descriptions, and entities to identify patterns, trends, and insights. Provide statistical analysis and key findings."
+    }
+  ]
+}
