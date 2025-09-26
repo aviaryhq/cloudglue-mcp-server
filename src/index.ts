@@ -16,6 +16,8 @@ import { registerSearchVideoMoments } from "./tools/search-video-moments.js";
 import { registerSearchVideoSummaries } from "./tools/search-video-summaries.js";
 import { registerGetVideoMetadata } from "./tools/get-video-metadata.js";
 import { registerRetrieveSummaries } from "./tools/retrieve-summaries.js";
+import { registerSegmentVideoCameraShots } from "./tools/segment-video-camera-shots.js";
+import { registerSegmentVideoChapters } from "./tools/segment-video-chapters.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
@@ -61,6 +63,8 @@ registerRetrieveEntities(server, cgClient);
 registerSearchVideoMoments(server, cgClient);
 registerSearchVideoSummaries(server, cgClient);
 registerGetVideoMetadata(server, cgClient);
+registerSegmentVideoCameraShots(server, cgClient);
+registerSegmentVideoChapters(server, cgClient);
 
 // Run server
 async function main() {
