@@ -52,7 +52,7 @@ Replace `<CLOUDGLUE-YOUR-API-KEY>` with the API Key created earlier.
   <img src="./assets/claude-desktop-2.png" width="40%" alt="Claude Desktop Extension Installation Step 2">
 </div>
 
-1. Download the latest Cloudglue Claude Desktop Extension (cloudglue-mcp-server.mcpb) from [the releases page](https://github.com/aviaryhq/cloudglue-mcp-server/releases/)
+1. Download the latest Cloudglue Claude Desktop Extension from [the releases page](https://github.com/aviaryhq/cloudglue-mcp-server/releases/latest/download/cloudglue-mcp-server.mcpb)
 2. Double click to open with Claude Desktop (you need to have Claude Desktop running prior to this)
 3. Click 'Install'
 4. When prompted, enter your API key
