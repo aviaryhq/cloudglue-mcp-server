@@ -91,6 +91,40 @@ Next, configure your MCP client (such as Cursor) to use this server. Most MCP cl
 
 # Documentation
 
+## Supported URL Formats
+
+The Cloudglue MCP Server supports multiple URL formats for video analysis:
+
+### **Cloudglue Platform (Default)**
+- **Format**: `cloudglue://files/file-id`
+- **Usage**: Use file ID from `list_videos` tool
+- **Best for**: Videos already uploaded to Cloudglue
+
+### **YouTube URLs**
+- **Formats**: 
+  - `https://www.youtube.com/watch?v=...`
+  - `https://youtu.be/...`
+- **Supported tools**: `describe_video`, `extract_video_entities`, `segment_video_chapters`
+- **Note**: Not supported for `segment_video_camera_shots`
+
+### **Public HTTP Video URLs**
+- **Format**: Direct links to MP4 files (e.g., `https://example.com/video.mp4`)
+- **Best for**: Publicly accessible video files
+
+### **Data Connector URLs**
+*Requires setup in Cloudglue account - see [Data Connectors Documentation](https://docs.cloudglue.dev/data-connectors/overview)*
+
+- **Dropbox**:
+  - Shareable links: `https://www.dropbox.com/scl/fo/SOME_ID/SOME_OTHER_ID?rlkey=SOME_KEY&st=SOME_TIME&dl=0`
+  - Direct path: `dropbox://<path>/<to>/<file>`
+
+- **Google Drive**:
+  - Format: `gdrive://file/<file_id>`
+
+- **Zoom**:
+  - Meeting UUID: `zoom://uuid/QFwZYEreTl2e6MBFSslXjQ%3D%3D`
+  - Meeting ID: `zoom://id/81586198865`
+
 ## Tools
 
 The following Cloudglue tools are available to LLMs through this MCP server:
@@ -103,15 +137,15 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Individual Video Analysis**
 
-- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_descriptions instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels.
+- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_descriptions instead. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).
 
-- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs. The quality of results depends heavily on your prompt specificity.
+- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). The quality of results depends heavily on your prompt specificity.
 
 - **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.
 
-- **`segment_video_camera_shots`**: Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns timestamps and metadata for each camera shot detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.
+- **`segment_video_camera_shots`**: Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns timestamps and metadata for each camera shot detected. Supports Cloudglue URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). Note: YouTube URLs are not supported for camera shot segmentation.
 
-- **`segment_video_chapters`**: Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.
+- **`segment_video_chapters`**: Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).
 
 ### **Collection Analysis**
 
