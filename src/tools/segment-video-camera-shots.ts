@@ -5,7 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to segment into camera shots. Supports Cloudglue URLs (cloudglue://files/file-id) or direct HTTP video URLs. For Cloudglue URLs, use the file ID from list_videos. Note: YouTube URLs are not supported for segmentation."),
+    .describe("Video URL to segment into camera shots. Supports multiple formats:\n\n• **Cloudglue platform (default)**: `cloudglue://files/file-id` - Use file ID from list_videos\n• **Public HTTP video URLs**: Direct links to MP4 files (e.g., `https://example.com/video.mp4`)\n• **Data connector URLs** (requires setup in Cloudglue account):\n  - **Dropbox**: Shareable links (`https://www.dropbox.com/scl/fo/...`) or `dropbox://<path>/<to>/<file>`\n  - **Google Drive**: `gdrive://file/<file_id>`\n  - **Zoom**: Meeting UUID (`zoom://uuid/QFwZYEreTl2e6MBFSslXjQ%3D%3D`) or Meeting ID (`zoom://id/81586198865`)\n\nNote: YouTube URLs are not supported for camera shot segmentation.\nSee https://docs.cloudglue.dev/data-connectors/overview for data connector setup."),
 };
 
 // Helper function to format time in seconds to HH:MM:SS format
