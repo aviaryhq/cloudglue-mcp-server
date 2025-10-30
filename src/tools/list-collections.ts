@@ -3,25 +3,19 @@ import { CloudGlue } from "@aviaryhq/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export const schema = {
-  limit: z
+  page: z
     .number()
-    .min(1)
-    .max(100)
-    .describe(
-      "Maximum number of collections to return (1-100). Start with smaller numbers for initial exploration.",
-    )
-    .default(10),
-  offset: z
-    .number()
+    .int()
     .min(0)
     .describe(
-      "Number of collections to skip for pagination (e.g., offset=10, limit=10 gets collections 11-20). Use to page through large lists of collections.",
+      "Page number for paginated results. Each page contains 20 collections. Defaults to 0 (first page). Use this to retrieve collections for specific pages. Increase the page number to get the next 20 collections.",
     )
+    .optional()
     .default(0),
   collection_type: z
     .string()
     .describe(
-      "Filter by collection type: 'rich-transcripts', 'media-descriptions', or 'entities'. Leave empty to see all types.",
+      "Filter by collection type: 'media-descriptions' or 'entities'. Leave empty to see all types.",
     )
     .optional(),
 };
@@ -32,17 +26,18 @@ export function registerListCollections(
 ) {
   server.tool(
     "list_collections",
-    "Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. For collections with type 'media-descriptions', use `describe_video` with the collection_id parameter to fetch previously extracted descriptions for a given Cloudglue file. For collections with type 'entities', use `extract_video_entities` with the collection_id parameter to fetch previously extracted entities for a given Cloudglue file. **Pagination guidance**: For comprehensive exploration, paginate through all collections (check `has_more` and increment `offset` by `limit`) to ensure you don't miss any collections. Use smaller limits (5-10) for quick overviews, larger limits (25-50) for thorough exploration.",
+    "Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. For collections with type 'media-descriptions', use `describe_video` with the collection_id parameter to fetch previously extracted descriptions for a given Cloudglue file. For collections with type 'entities', use `extract_video_entities` with the collection_id parameter to fetch previously extracted entities for a given Cloudglue file. Results are paginated in 20 collections per page - use the 'page' parameter to retrieve specific pages (page 0 = first 20 collections, page 1 = next 20 collections, etc.). Each response includes `page` and `total_pages` fields.",
     schema,
-    async ({ limit, offset, collection_type }) => {
+    async ({ page = 0, collection_type }) => {
+      const COLLECTIONS_PER_PAGE = 20;
+      const limit = COLLECTIONS_PER_PAGE;
+      const offset = page * COLLECTIONS_PER_PAGE;
+
       const collections = await cgClient.collections.listCollections({
         limit: limit,
         offset: offset,
         ...(collection_type && {
-          collection_type: collection_type as
-            | "rich-transcripts"
-            | "media-descriptions"
-            | "entities",
+          collection_type: collection_type as "media-descriptions" | "entities",
         }),
       });
 
@@ -61,7 +56,7 @@ export function registerListCollections(
           return {
             id: collection.id,
             name: collection.name,
-            collection_type: collection.collection_type ?? "rich-transcripts",
+            collection_type: collection.collection_type,
             created_at: collection.created_at,
             completed_video_count: completedVideoCount,
             description: collection.description ?? undefined,
@@ -69,14 +64,15 @@ export function registerListCollections(
         }),
       );
 
+      const totalPages =
+        collections.total > 0
+          ? Math.ceil(collections.total / COLLECTIONS_PER_PAGE)
+          : 1;
+
       const result = {
         collections: processedCollections,
-        pagination: {
-          offset,
-          limit,
-          total: collections.total,
-          has_more: processedCollections.length === limit,
-        },
+        page: page,
+        total_pages: totalPages,
       };
 
       return {
