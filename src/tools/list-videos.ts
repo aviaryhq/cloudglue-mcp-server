@@ -3,25 +3,19 @@ import { CloudGlue } from "@aviaryhq/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export const schema = {
-  limit: z
+  page: z
     .number()
-    .min(1)
-    .max(100)
-    .describe(
-      "Maximum number of videos to return (1-100). Use smaller limits for quick overviews.",
-    )
-    .default(10),
-  offset: z
-    .number()
+    .int()
     .min(0)
     .describe(
-      "Number of videos to skip for pagination. Use with limit to page through large result sets (e.g., offset=10, limit=10 gets videos 11-20).",
+      "Page number for paginated results. Each page contains 20 videos. Defaults to 0 (first page). Use this to retrieve videos for specific pages. Increase the page number to get the next 20 videos.",
     )
+    .optional()
     .default(0),
   collection_id: z
     .string()
     .describe(
-      "Filter to videos in a specific collection. Use the collection ID from list_collections (without the 'cloudglue://collections/' prefix). Leave empty to see all user videos.",
+      "Filter to videos in a specific collection. Use the collection ID from list_collections. Leave empty to see all user videos.",
     )
     .optional(),
   created_after: z
@@ -41,9 +35,13 @@ export const schema = {
 export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "list_videos",
-    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. **Pagination guidance**: For exhaustive exploration, paginate through all videos (check `has_more` and increment `offset` by `limit`) to ensure complete coverage. Use date filtering to focus on specific time periods, then paginate within those results.",
+    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. Results are paginated in 20 videos per page - use the 'page' parameter to retrieve specific pages (page 0 = first 20 videos, page 1 = next 20 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.",
     schema,
-    async ({ limit, offset, collection_id, created_after, created_before }) => {
+    async ({ page = 0, collection_id, created_after, created_before }) => {
+      const VIDEOS_PER_PAGE = 20;
+      const limit = VIDEOS_PER_PAGE;
+      const offset = page * VIDEOS_PER_PAGE;
+
       let videos: any[] = [];
       let totalCount: number = 0;
 
@@ -86,7 +84,7 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
       } else {
         // Get all individual videos
         const files = await cgClient.files.listFiles({
-          limit: limit + offset, // Get more to handle offset
+          limit: limit + offset, // Get more to handle offset for pagination
         });
         totalCount = files.total;
 
@@ -129,6 +127,12 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
       // Apply pagination
       const paginatedVideos = videos.slice(offset, offset + limit);
 
+      // Calculate total pages based on filtered videos count
+      // Note: We use the filtered count for accurate pagination when date filters are applied
+      const filteredTotal = videos.length;
+      const totalPages =
+        filteredTotal > 0 ? Math.ceil(filteredTotal / VIDEOS_PER_PAGE) : 1;
+
       return {
         content: [
           {
@@ -136,12 +140,8 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
             text: JSON.stringify(
               {
                 videos: paginatedVideos,
-                pagination: {
-                  offset,
-                  limit,
-                  total: totalCount,
-                  has_more: offset + limit < videos.length,
-                },
+                page: page,
+                total_pages: totalPages,
               },
               null,
               2,

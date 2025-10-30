@@ -6,22 +6,16 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "Collection ID from list_collections without the 'cloudglue://collections/' prefix (e.g., use 'abc123' not 'cloudglue://collections/abc123'). Works with both rich-transcripts and media-descriptions collections.",
+      "Collection ID from list_collections. Works with both rich-transcripts and media-descriptions collections.",
     ),
-  limit: z
+  page: z
     .number()
-    .min(1)
-    .max(50)
-    .describe(
-      "Maximum number of summaries to return per request (1-50) with pagination. Use smaller numbers for initial exploration, larger for comprehensive collection overview.",
-    )
-    .default(25),
-  offset: z
-    .number()
+    .int()
     .min(0)
     .describe(
-      "Number of summaries to skip for pagination (e.g., offset=25, limit=25 gets summaries 26-50). Use to page through large collections.",
+      "Page number for paginated results. Each page contains 10 summaries. Defaults to 0 (first page). Use this to retrieve summaries for specific pages. Increase the page number to get the next 10 summaries.",
     )
+    .optional()
     .default(0),
   created_after: z
     .string()
@@ -43,9 +37,13 @@ export function registerRetrieveSummaries(
 ) {
   server.tool(
     "retrieve_summaries",
-    "Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Only proceed to retrieve_descriptions if you need the full multimodal context for specific videos identified through the summaries. For single videos, use describe_video instead. For targeted content discovery, consider using search_video_summaries (for relevant videos) or search_video_moments (for specific segments) instead of browsing through all summaries. **Pagination guidance**: For comprehensive collection analysis, paginate through all summaries (check `has_more` and increment `offset` by `limit`) to ensure complete coverage. Use larger limits (25-50) for efficient bulk analysis, smaller limits (5-10) for targeted exploration.",
+    "Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. For single videos, use describe_video instead. For targeted content discovery, consider using search_video_summaries (for relevant videos) or search_video_moments (for specific segments) instead of browsing through all summaries. Results are paginated in 10 summaries per page - use the 'page' parameter to retrieve specific pages (page 0 = first 10 summaries, page 1 = next 10 summaries, etc.). Each response includes `page` and `total_pages` fields. For comprehensive collection analysis, paginate through all summaries by incrementing the `page` parameter.",
     schema,
-    async ({ collection_id, limit, offset, created_after, created_before }) => {
+    async ({ collection_id, page = 0, created_after, created_before }) => {
+      const SUMMARIES_PER_PAGE = 10;
+      const limit = SUMMARIES_PER_PAGE;
+      const offset = page * SUMMARIES_PER_PAGE;
+
       // First get the collection to determine its type
       const collection =
         await cgClient.collections.getCollection(collection_id);
@@ -60,6 +58,8 @@ export function registerRetrieveSummaries(
                   error: "Collection not found or invalid collection ID",
                   collection_id,
                   summaries: [],
+                  page: page,
+                  total_pages: 0,
                 },
                 null,
                 2,
@@ -83,6 +83,8 @@ export function registerRetrieveSummaries(
                   collection_id,
                   collection_type: collection.collection_type,
                   summaries: [],
+                  page: page,
+                  total_pages: 0,
                 },
                 null,
                 2,
@@ -148,15 +150,16 @@ export function registerRetrieveSummaries(
         file_id: description.file_id,
       }));
 
+      // Calculate total pages based on filtered descriptions count
+      const filteredTotal = filteredDescriptions.length;
+      const totalPages =
+        filteredTotal > 0 ? Math.ceil(filteredTotal / SUMMARIES_PER_PAGE) : 1;
+
       const result = {
         summaries,
         collection_type: collection.collection_type,
-        pagination: {
-          offset,
-          limit,
-          total: descriptions.total,
-          has_more: offset + limit < filteredDescriptions.length,
-        },
+        page: page,
+        total_pages: totalPages,
         collection_id,
         ...(created_after && { filtered_after: created_after }),
         ...(created_before && { filtered_before: created_before }),
