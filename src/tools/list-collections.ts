@@ -7,16 +7,22 @@ export const schema = {
     .number()
     .min(1)
     .max(100)
-    .describe("Maximum number of collections to return (1-100). Start with smaller numbers for initial exploration.")
+    .describe(
+      "Maximum number of collections to return (1-100). Start with smaller numbers for initial exploration.",
+    )
     .default(10),
   offset: z
     .number()
     .min(0)
-    .describe("Number of collections to skip for pagination (e.g., offset=10, limit=10 gets collections 11-20). Use to page through large lists of collections.")
+    .describe(
+      "Number of collections to skip for pagination (e.g., offset=10, limit=10 gets collections 11-20). Use to page through large lists of collections.",
+    )
     .default(0),
   collection_type: z
     .string()
-    .describe("Filter by collection type: 'rich-transcripts', 'media-descriptions', or 'entities'. Leave empty to see all types.")
+    .describe(
+      "Filter by collection type: 'rich-transcripts', 'media-descriptions', or 'entities'. Leave empty to see all types.",
+    )
     .optional(),
 };
 
@@ -32,7 +38,12 @@ export function registerListCollections(
       const collections = await cgClient.collections.listCollections({
         limit: limit,
         offset: offset,
-        ...(collection_type && { collection_type: collection_type as "rich-transcripts" | "media-descriptions" | "entities" }),
+        ...(collection_type && {
+          collection_type: collection_type as
+            | "rich-transcripts"
+            | "media-descriptions"
+            | "entities",
+        }),
       });
 
       // Process each collection to get video counts and selective fields
@@ -42,20 +53,20 @@ export function registerListCollections(
           const videos = await cgClient.collections.listVideos(collection.id, {
             limit: 100, // TODO: paginate for very large collections
           });
-          
+
           const completedVideoCount = videos.data.filter(
-            video => video.status === "completed"
+            (video) => video.status === "completed",
           ).length;
 
           return {
             id: collection.id,
             name: collection.name,
-            collection_type: collection.collection_type ?? 'rich-transcripts',
+            collection_type: collection.collection_type ?? "rich-transcripts",
             created_at: collection.created_at,
             completed_video_count: completedVideoCount,
-            description: collection.description ?? undefined,            
+            description: collection.description ?? undefined,
           };
-        })
+        }),
       );
 
       const result = {
@@ -64,8 +75,8 @@ export function registerListCollections(
           offset,
           limit,
           total: collections.total,
-          has_more: processedCollections.length === limit
-        }
+          has_more: processedCollections.length === limit,
+        },
       };
 
       return {
@@ -78,4 +89,4 @@ export function registerListCollections(
       };
     },
   );
-} 
+}

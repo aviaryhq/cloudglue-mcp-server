@@ -12,20 +12,28 @@ export const schema = {
     .number()
     .min(1)
     .max(50)
-    .describe("Maximum number of summaries to return per request (1-50) with pagination. Use smaller numbers for initial exploration, larger for comprehensive collection overview.")
+    .describe(
+      "Maximum number of summaries to return per request (1-50) with pagination. Use smaller numbers for initial exploration, larger for comprehensive collection overview.",
+    )
     .default(25),
   offset: z
     .number()
     .min(0)
-    .describe("Number of summaries to skip for pagination (e.g., offset=25, limit=25 gets summaries 26-50). Use to page through large collections.")
+    .describe(
+      "Number of summaries to skip for pagination (e.g., offset=25, limit=25 gets summaries 26-50). Use to page through large collections.",
+    )
     .default(0),
   created_after: z
     .string()
-    .describe("Only include summaries created after this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing recent additions to a collection.")
+    .describe(
+      "Only include summaries created after this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing recent additions to a collection.",
+    )
     .optional(),
   created_before: z
     .string()
-    .describe("Only include summaries created before this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing historical content.")
+    .describe(
+      "Only include summaries created before this date (YYYY-MM-DD format, e.g., '2024-01-15'). Useful for analyzing historical content.",
+    )
     .optional(),
 };
 
@@ -39,34 +47,46 @@ export function registerRetrieveSummaries(
     schema,
     async ({ collection_id, limit, offset, created_after, created_before }) => {
       // First get the collection to determine its type
-      const collection = await cgClient.collections.getCollection(collection_id);
-      
+      const collection =
+        await cgClient.collections.getCollection(collection_id);
+
       if (!collection || !collection.collection_type) {
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                error: "Collection not found or invalid collection ID",
-                collection_id,
-                summaries: []
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  error: "Collection not found or invalid collection ID",
+                  collection_id,
+                  summaries: [],
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
       }
 
-      if (collection.collection_type !== "rich-transcripts" && collection.collection_type !== "media-descriptions") {
+      if (
+        collection.collection_type !== "rich-transcripts" &&
+        collection.collection_type !== "media-descriptions"
+      ) {
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                error: `Collection type '${collection.collection_type}' is not supported. This tool works with rich-transcripts and media-descriptions collections only.`,
-                collection_id,
-                collection_type: collection.collection_type,
-                summaries: []
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  error: `Collection type '${collection.collection_type}' is not supported. This tool works with rich-transcripts and media-descriptions collections only.`,
+                  collection_id,
+                  collection_type: collection.collection_type,
+                  summaries: [],
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
@@ -75,51 +95,59 @@ export function registerRetrieveSummaries(
       // Get all descriptions first to apply our own filtering
       // Note: The API may not support date filtering natively, so we'll get more and filter
       const fetchLimit = Math.min(limit + offset + 50, 100); // Get extra for filtering
-      
+
       let descriptions;
       if (collection.collection_type === "rich-transcripts") {
         descriptions = await cgClient.collections.listRichTranscripts(
           collection_id,
-          { limit: fetchLimit, offset: 0 }
+          { limit: fetchLimit, offset: 0 },
         );
       } else {
         descriptions = await cgClient.collections.listMediaDescriptions(
           collection_id,
-          { limit: fetchLimit, offset: 0 }
+          { limit: fetchLimit, offset: 0 },
         );
       }
-      
+
       let filteredDescriptions = descriptions.data || [];
 
       // Apply date filtering if requested
       if (created_after || created_before) {
-        filteredDescriptions = filteredDescriptions.filter((description: any) => {
-          const descriptionDate = new Date(description.created_at || description.added_at || 0);
-          
-          if (created_after) {
-            const afterDate = new Date(created_after + 'T00:00:00.000Z');
-            if (descriptionDate <= afterDate) return false;
-          }
-          
-          if (created_before) {
-            const beforeDate = new Date(created_before + 'T23:59:59.999Z');
-            if (descriptionDate >= beforeDate) return false;
-          }
-          
-          return true;
-        });
+        filteredDescriptions = filteredDescriptions.filter(
+          (description: any) => {
+            const descriptionDate = new Date(
+              description.created_at || description.added_at || 0,
+            );
+
+            if (created_after) {
+              const afterDate = new Date(created_after + "T00:00:00.000Z");
+              if (descriptionDate <= afterDate) return false;
+            }
+
+            if (created_before) {
+              const beforeDate = new Date(created_before + "T23:59:59.999Z");
+              if (descriptionDate >= beforeDate) return false;
+            }
+
+            return true;
+          },
+        );
       }
 
       // Apply pagination
-      const paginatedDescriptions = filteredDescriptions.slice(offset, offset + limit);
-      
+      const paginatedDescriptions = filteredDescriptions.slice(
+        offset,
+        offset + limit,
+      );
+
       // Extract only title and summary information
       const summaries = paginatedDescriptions.map((description: any) => ({
-        title: description.data.title || description.data.filename || 'Untitled',
-        summary: description.data.summary || 'No summary available',
-        file_id: description.file_id
+        title:
+          description.data.title || description.data.filename || "Untitled",
+        summary: description.data.summary || "No summary available",
+        file_id: description.file_id,
       }));
-      
+
       const result = {
         summaries,
         collection_type: collection.collection_type,
@@ -127,13 +155,13 @@ export function registerRetrieveSummaries(
           offset,
           limit,
           total: descriptions.total,
-          has_more: offset + limit < filteredDescriptions.length
+          has_more: offset + limit < filteredDescriptions.length,
         },
         collection_id,
         ...(created_after && { filtered_after: created_after }),
         ...(created_before && { filtered_before: created_before }),
       };
-      
+
       return {
         content: [
           {
@@ -144,4 +172,4 @@ export function registerRetrieveSummaries(
       };
     },
   );
-} 
+}

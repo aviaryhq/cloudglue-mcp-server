@@ -5,10 +5,14 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 export const schema = {
   url: z
     .string()
-    .describe("Video URL to segment into chapters. Supports multiple formats:\n\n• **Cloudglue platform (default)**: `cloudglue://files/file-id` - Use file ID from list_videos\n• **YouTube URLs**: `https://www.youtube.com/watch?v=...` or `https://youtu.be/...`\n• **Public HTTP video URLs**: Direct links to MP4 files (e.g., `https://example.com/video.mp4`)\n• **Data connector URLs** (requires setup in Cloudglue account):\n  - **Dropbox**: Shareable links (`https://www.dropbox.com/scl/fo/...`) or `dropbox://<path>/<to>/<file>`\n  - **Google Drive**: `gdrive://file/<file_id>`\n  - **Zoom**: Meeting UUID (`zoom://uuid/QFwZYEreTl2e6MBFSslXjQ%3D%3D`) or Meeting ID (`zoom://id/81586198865`)\n\nSee https://docs.cloudglue.dev/data-connectors/overview for data connector setup."),
+    .describe(
+      "Video URL to segment into chapters. Supports multiple formats:\n\n• **Cloudglue platform (default)**: `cloudglue://files/file-id` - Use file ID from list_videos\n• **YouTube URLs**: `https://www.youtube.com/watch?v=...` or `https://youtu.be/...`\n• **Public HTTP video URLs**: Direct links to MP4 files (e.g., `https://example.com/video.mp4`)\n• **Data connector URLs** (requires setup in Cloudglue account):\n  - **Dropbox**: Shareable links (`https://www.dropbox.com/scl/fo/...`) or `dropbox://<path>/<to>/<file>`\n  - **Google Drive**: `gdrive://file/<file_id>`\n  - **Zoom**: Meeting UUID (`zoom://uuid/QFwZYEreTl2e6MBFSslXjQ%3D%3D`) or Meeting ID (`zoom://id/81586198865`)\n\nSee https://docs.cloudglue.dev/data-connectors/overview for data connector setup.",
+    ),
   prompt: z
     .string()
-    .describe("Custom prompt to guide chapter detection. Describe what types of chapters or segments you want to identify. Examples: 'Identify main topics and transitions', 'Find scene changes and key moments', 'Segment by speaker changes and topics'. Leave empty to use default chapter detection.")
+    .describe(
+      "Custom prompt to guide chapter detection. Describe what types of chapters or segments you want to identify. Examples: 'Identify main topics and transitions', 'Find scene changes and key moments', 'Segment by speaker changes and topics'. Leave empty to use default chapter detection.",
+    )
     .optional(),
 };
 
@@ -17,11 +21,11 @@ function formatTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   } else {
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
 }
 
@@ -35,7 +39,7 @@ export function registerSegmentVideoChapters(
     schema,
     async ({ url, prompt }) => {
       // Check if it's a YouTube URL (not supported)
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      if (url.includes("youtube.com") || url.includes("youtu.be")) {
         return {
           content: [
             {
@@ -48,21 +52,24 @@ export function registerSegmentVideoChapters(
 
       // Step 1: Check for existing narrative segmentation jobs for this URL
       try {
-        const existingJobs = await cgClient.segments.listSegmentJobs({ 
+        const existingJobs = await cgClient.segments.listSegmentJobs({
           criteria: "narrative",
           url: url,
           status: "completed",
-          limit: 1
+          limit: 1,
         });
-        
+
         if (existingJobs.data && existingJobs.data.length > 0) {
           const job = existingJobs.data[0];
           if (job.segments && job.segments.length > 0) {
-            const chaptersText = job.segments.map((segment, index) => {
-              const startTime = formatTime(segment.start_time);
-              const description = segment.description || `Chapter ${index + 1}`;
-              return `Chapter ${index + 1}: ${startTime} - ${description}`;
-            }).join('\n');
+            const chaptersText = job.segments
+              .map((segment, index) => {
+                const startTime = formatTime(segment.start_time);
+                const description =
+                  segment.description || `Chapter ${index + 1}`;
+                return `Chapter ${index + 1}: ${startTime} - ${description}`;
+              })
+              .join("\n");
 
             return {
               content: [
@@ -92,14 +99,18 @@ export function registerSegmentVideoChapters(
         });
 
         // Wait for completion using SDK's waitForReady method
-        const completedJob = await cgClient.segments.waitForReady(segmentJob.job_id);
+        const completedJob = await cgClient.segments.waitForReady(
+          segmentJob.job_id,
+        );
 
         if (completedJob.status === "completed" && completedJob.segments) {
-          const chaptersText = completedJob.segments.map((segment, index) => {
-            const startTime = formatTime(segment.start_time);
-            const description = segment.description || `Chapter ${index + 1}`;
-            return `Chapter ${index + 1}: ${startTime} - ${description}`;
-          }).join('\n');
+          const chaptersText = completedJob.segments
+            .map((segment, index) => {
+              const startTime = formatTime(segment.start_time);
+              const description = segment.description || `Chapter ${index + 1}`;
+              return `Chapter ${index + 1}: ${startTime} - ${description}`;
+            })
+            .join("\n");
 
           return {
             content: [
@@ -119,13 +130,12 @@ export function registerSegmentVideoChapters(
             },
           ],
         };
-
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: `Error creating chapter segmentation: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              text: `Error creating chapter segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
             },
           ],
         };

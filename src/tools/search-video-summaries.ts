@@ -17,7 +17,9 @@ export const schema = {
     .number()
     .min(1)
     .max(20)
-    .describe("Maximum number of relevant videos to return (1-20). Start with 5-10 for focused results, increase for comprehensive searches.")
+    .describe(
+      "Maximum number of relevant videos to return (1-20). Start with 5-10 for focused results, increase for comprehensive searches.",
+    )
     .default(5),
 };
 
@@ -43,7 +45,7 @@ export function registerSearchVideoSummaries(
           query: query,
           collection_id: collection_id,
           videos_found: response.results || [],
-          total_results: response.results?.length || 0
+          total_results: response.results?.length || 0,
         };
 
         return {
@@ -54,19 +56,22 @@ export function registerSearchVideoSummaries(
             },
           ],
         };
-
       } catch (error) {
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                query: query,
-                collection_id: collection_id,
-                error: `Failed to search videos: ${error instanceof Error ? error.message : 'Unknown error'}`,
-                videos_found: null,
-                total_results: 0
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  query: query,
+                  collection_id: collection_id,
+                  error: `Failed to search videos: ${error instanceof Error ? error.message : "Unknown error"}`,
+                  videos_found: null,
+                  total_results: 0,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
