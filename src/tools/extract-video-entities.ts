@@ -11,12 +11,13 @@ export const schema = {
   prompt: z
     .string()
     .describe(
-      "Detailed extraction prompt that guides what entities to find. Examples: 'Extract speaker names, key topics, and action items', 'Find product names, prices, and features mentioned', 'Identify companies, people, and technologies discussed'. Be specific about the data structure you want.",
-    ),
+      "Detailed extraction prompt that guides what entities to find. Examples: 'Extract speaker names, key topics, and action items', 'Find product names, prices, and features mentioned', 'Identify companies, people, and technologies discussed'. Be specific about the data structure you want. Required when collection_id is not provided.",
+    )
+    .optional(),
   collection_id: z
     .string()
     .describe(
-      "Optional collection ID to check for existing entity extractions first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs.",
+      "Optional collection ID to retrieve existing entity extractions (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs. When provided, prompt is not required and entities are fetched from the collection.",
     )
     .optional(),
   page: z
@@ -42,9 +43,33 @@ export function registerExtractVideoEntities(
 ) {
   server.tool(
     "extract_video_entities",
-    "Extract structured data and entities from videos using custom prompts with intelligent cost optimization and pagination support. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs. The quality of results depends heavily on your prompt specificity. Pagination is supported use the 'page' parameter to retrieve specific pages of segment-level entities",
+    "Extract structured data and entities from videos with intelligent cost optimization and pagination support. Two modes: (1) Fetch existing entities from a collection by providing collection_id (prompt not required) - returns error if not found, (2) Extract new entities by providing prompt (collection_id optional) - automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs. The quality of results depends heavily on your prompt specificity. Pagination is supported - use the 'page' parameter to retrieve specific pages of segment-level entities.",
     schema,
     async ({ url, prompt, collection_id, page = 0 }) => {
+      // Validate that either collection_id or prompt is provided
+      if (!collection_id && !prompt) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  video_level_entities: {},
+                  segment_level_entities: {
+                    entities: [],
+                    page: page,
+                    total_pages: 0,
+                  },
+                  error: "Either 'collection_id' or 'prompt' must be provided",
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      }
+
       const fileId = extractFileIdFromUrl(url);
       const SEGMENTS_PER_PAGE = 25;
 
@@ -107,13 +132,106 @@ export function registerExtractVideoEntities(
               page,
               totalPages,
             );
+          } else {
+            // Entities not found in collection
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: JSON.stringify(
+                    {
+                      video_level_entities: {},
+                      segment_level_entities: {
+                        entities: [],
+                        page: page,
+                        total_pages: 0,
+                      },
+                      error: `No entities found for video in collection. The video may not have been processed yet or may not exist in the specified collection.`,
+                    },
+                    null,
+                    2,
+                  ),
+                },
+              ],
+            };
           }
         } catch (error) {
-          // Continue to next step if collection lookup fails
+          // Return error if collection lookup fails
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(
+                  {
+                    video_level_entities: {},
+                    segment_level_entities: {
+                      entities: [],
+                      page: page,
+                      total_pages: 0,
+                    },
+                    error: `Error fetching entities from collection: ${error instanceof Error ? error.message : "Unknown error"}`,
+                  },
+                  null,
+                  2,
+                ),
+              },
+            ],
+          };
         }
       }
 
+      // If collection_id was provided but fileId is missing, return error
+      if (collection_id && !fileId) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  video_level_entities: {},
+                  segment_level_entities: {
+                    entities: [],
+                    page: page,
+                    total_pages: 0,
+                  },
+                  error:
+                    "collection_id requires a Cloudglue URL (cloudglue://files/file-id). Other URL formats are not supported for collection entity retrieval.",
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      }
+
       // Step 2: Check for existing individual extracts for this URL with matching prompt
+      // At this point, if collection_id was provided we would have already returned or errored
+      // So prompt must be defined (validated at function start)
+      if (!prompt) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  video_level_entities: {},
+                  segment_level_entities: {
+                    entities: [],
+                    page: page,
+                    total_pages: 0,
+                  },
+                  error:
+                    "prompt is required when collection_id is not provided",
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      }
+
       // TODO: Implement pagination for non-collection extracts when SDK supports it
       try {
         const existingExtracts = await cgClient.extract.listExtracts({
