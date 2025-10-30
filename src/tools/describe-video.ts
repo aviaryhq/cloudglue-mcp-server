@@ -37,7 +37,7 @@ export function registerDescribeVideo(
       if (collection_id && fileId && !force_new) {
         try {
           const transcripts = await cgClient.collections.getTranscripts(
-            collection_id, fileId, undefined, undefined, 'markdown'
+            collection_id, fileId, {'response_format': 'markdown'}
           );
           if (transcripts.content) {
             return {
