@@ -66,11 +66,12 @@ export function registerExtractVideoEntities(
           const extract = existingExtracts.data[0];
           // Only reuse if the prompt matches
           if (extract.extract_config?.prompt === prompt) {
+            const extraction = await cgClient.extract.getExtract(extract.job_id);
             return {
               content: [
                 {
                   type: "text",
-                  text: `Found existing entity extraction:\n\n${JSON.stringify(extract.data, null, 2)}`,
+                  text: `Found existing entity extraction:\n\n${JSON.stringify(extraction.data, null, 2)}`,
                 },
               ],
             };
@@ -85,6 +86,8 @@ export function registerExtractVideoEntities(
       try {
         const extractJob = await cgClient.extract.createExtract(url, {
           prompt: prompt,
+          enable_segment_level_entities: true,
+          enable_video_level_entities: false,
         });
 
         // Wait for completion using SDK's waitForReady method
