@@ -56,11 +56,11 @@ export function registerDescribeVideo(
           limit: 1, 
           status: 'completed', 
           url: url,
-          response_format: 'markdown'
         });
         
         if (existingDescriptions.data && existingDescriptions.data.length > 0) {
-          const description = existingDescriptions.data[0];
+          const describeJobId = existingDescriptions.data[0].job_id;
+          const description = await cgClient.describe.getDescribe(describeJobId, {response_format: 'markdown'});
           return {
             content: [
               {
