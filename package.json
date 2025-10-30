@@ -25,7 +25,7 @@
   "description": "Cloudglue MCP Server",
   "dependencies": {
     "@aviaryhq/cloudglue-js": "^0.3.6",
-    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@modelcontextprotocol/sdk": "^1.20.2",
     "dotenv": "^16.4.7",
     "shx": "^0.4.0",
     "zod": "^3.24.2"

@@ -33,14 +33,14 @@ export function registerDescribeVideo(
       if (collection_id && fileId) {
         try {
           const descriptions = await cgClient.collections.getMediaDescriptions(
-            collection_id, fileId, {'response_format': 'markdown'}
+            collection_id, fileId, {response_format: 'markdown'}
           );
           if (descriptions.content) {
             return {
               content: [
                 {
                   type: "text",
-                  text: `Found existing description in collection:\n\n${descriptions.content}`,
+                  text: descriptions.content,
                 },
               ],
             };
@@ -55,7 +55,8 @@ export function registerDescribeVideo(
         const existingDescriptions = await cgClient.describe.listDescribes({ 
           limit: 1, 
           status: 'completed', 
-          url: url 
+          url: url,
+          response_format: 'markdown'
         });
         
         if (existingDescriptions.data && existingDescriptions.data.length > 0) {
@@ -64,7 +65,7 @@ export function registerDescribeVideo(
             content: [
               {
                 type: "text",
-                text: `Found existing description:\n\n${description.data?.content || JSON.stringify(description.data)}`,
+                text: description.data?.content || '',
               },
             ],
           };
@@ -96,12 +97,11 @@ export function registerDescribeVideo(
         );
 
         if (completedJob.status === "completed") {
-          const content = completedJob.data?.content || JSON.stringify(completedJob.data);
           return {
             content: [
               {
                 type: "text",
-                text: `New description created:\n\n${content}`,
+                text: completedJob.data?.content || '',
               },
             ],
           };
