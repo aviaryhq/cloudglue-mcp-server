@@ -17,7 +17,7 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "Optional collection ID to retrieve existing entity extractions (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs. When provided, prompt is not required and entities are fetched from the collection.",
+      "Optional collection ID to fetch previously extracted entities from an entities collection (saves time and cost). Use collection ID from list_collections. When provided with a Cloudglue URL, this tool retrieves existing entity extractions that were previously extracted and stored in the specified collection. Only works with Cloudglue URLs. When provided, prompt is not required and entities are fetched from the collection.",
     )
     .optional(),
   page: z
@@ -43,7 +43,7 @@ export function registerExtractVideoEntities(
 ) {
   server.tool(
     "extract_video_entities",
-    "Extract structured data and entities from videos with intelligent cost optimization and pagination support. Two modes: (1) Fetch existing entities from a collection by providing collection_id (prompt not required) - returns error if not found, (2) Extract new entities by providing prompt (collection_id optional) - automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs. The quality of results depends heavily on your prompt specificity. Pagination is supported - use the 'page' parameter to retrieve specific pages of segment-level entities.",
+    "Extract structured data and entities from videos with intelligent cost optimization and pagination support. Two modes: (1) Fetch existing entities from an entities collection by providing collection_id (prompt not required) - retrieves previously extracted entities stored in that collection for the given Cloudglue file, returns error if not found, (2) Extract new entities by providing prompt (collection_id optional) - automatically checks for existing extractions before creating new ones. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs. The quality of results depends heavily on your prompt specificity. Pagination is supported - use the 'page' parameter to retrieve specific pages of segment-level entities. Use this for individual video analysis.",
     schema,
     async ({ url, prompt, collection_id, page = 0 }) => {
       // Validate that either collection_id or prompt is provided

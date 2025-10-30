@@ -11,7 +11,7 @@ export const schema = {
   collection_id: z
     .string()
     .describe(
-      "Optional collection ID to check for existing descriptions first (saves time and cost). Use collection ID from list_collections without 'cloudglue://collections/' prefix. Only works with Cloudglue URLs.",
+      "Optional collection ID to fetch previously extracted media descriptions from a media-descriptions collection (saves time and cost). Use collection ID from list_collections without. When provided with a Cloudglue URL, this tool retrieves existing descriptions that were previously extracted and stored in the specified collection. Only works with Cloudglue URLs.",
     )
     .optional(),
   page: z
@@ -34,7 +34,7 @@ function extractFileIdFromUrl(url: string): string | null {
 export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "describe_video",
-    "Gets comprehensive video descriptions with intelligent cost optimization and pagination support. Automatically checks for existing descriptions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_descriptions instead. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels. Results are paginated in 5-minute segments - use the 'page' parameter to retrieve specific time segments of longer videos (page 0 = first 5 minutes, page 1 = next 5 minutes, etc.).",
+    "Gets comprehensive video descriptions with intelligent cost optimization and pagination support. Automatically checks for existing descriptions before creating new ones. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels. Results are paginated in 5-minute segments - use the 'page' parameter to retrieve specific time segments of longer videos (page 0 = first 5 minutes, page 1 = next 5 minutes, etc.). When `collection_id` is provided (from a media-descriptions collection), this tool fetches previously extracted descriptions that were stored in that collection for the given Cloudglue file, saving time and cost. Use this for individual video analysis.",
     schema,
     async ({ url, collection_id, page = 0 }) => {
       const fileId = extractFileIdFromUrl(url);
