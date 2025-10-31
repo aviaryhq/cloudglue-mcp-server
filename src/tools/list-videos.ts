@@ -47,91 +47,75 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
 
       if (collection_id) {
         // If collection_id is provided, get videos from that collection
+        // Note: For collections, date filtering uses added_after/added_before (when video was added to collection)
+        // TODO: Consider adding separate parameters for added_after/added_before vs created_after/created_before
         const collectionVideos = await cgClient.collections.listVideos(
           collection_id,
           {
-            limit: limit + offset, // Get more to handle offset
+            limit: limit,
+            offset: offset,
+            status: "completed", // Filter for completed videos only
+            ...(created_after && { added_after: created_after }),
+            ...(created_before && { added_before: created_before }),
           },
         );
         totalCount = collectionVideos.total;
 
-        // Get detailed info for each video and apply filtering
+        // Get detailed info for each video
         const processedVideos = await Promise.all(
-          collectionVideos.data
-            .filter((video) => video.status === "completed")
-            .map(async (video) => {
-              const fileInfo = await cgClient.files.getFile(video.file_id);
+          collectionVideos.data.map(async (video) => {
+            const fileInfo = await cgClient.files.getFile(video.file_id);
 
-              return {
-                filename: fileInfo.filename,
-                uri: fileInfo.uri,
-                id: fileInfo.id,
-                created_at: fileInfo.created_at,
-                metadata: fileInfo.metadata,
-                video_info: fileInfo.video_info
-                  ? {
-                      duration_seconds: fileInfo.video_info.duration_seconds,
-                      has_audio: fileInfo.video_info.has_audio,
-                    }
-                  : null,
-                collection_id: video.collection_id,
-                added_at: video.added_at,
-              };
-            }),
+            return {
+              filename: fileInfo.filename,
+              uri: fileInfo.uri,
+              id: fileInfo.id,
+              created_at: fileInfo.created_at,
+              metadata: fileInfo.metadata,
+              video_info: fileInfo.video_info
+                ? {
+                    duration_seconds: fileInfo.video_info.duration_seconds,
+                    has_audio: fileInfo.video_info.has_audio,
+                  }
+                : null,
+              collection_id: video.collection_id,
+              added_at: video.added_at,
+            };
+          }),
         );
 
         videos = processedVideos;
       } else {
-        // Get all individual videos
+        // Get all individual videos using API filtering
+        // Note: API supports status filtering - we're using it internally to filter for completed videos only
+        // TODO: Consider exposing status as a tool parameter if users need to see pending/processing/failed videos
         const files = await cgClient.files.listFiles({
-          limit: limit + offset, // Get more to handle offset for pagination
+          limit: limit,
+          offset: offset,
+          status: "completed", // Filter for completed videos only
+          ...(created_after && { created_after: created_after }),
+          ...(created_before && { created_before: created_before }),
         });
         totalCount = files.total;
 
-        videos = files.data
-          .filter((file) => file.status === "completed")
-          .map((file) => ({
-            filename: file.filename,
-            uri: file.uri,
-            id: file.id,
-            created_at: file.created_at,
-            metadata: file.metadata,
-            video_info: file.video_info
-              ? {
-                  duration_seconds: file.video_info.duration_seconds,
-                  has_audio: file.video_info.has_audio,
-                }
-              : null,
-          }));
+        videos = files.data.map((file) => ({
+          filename: file.filename,
+          uri: file.uri,
+          id: file.id,
+          created_at: file.created_at,
+          metadata: file.metadata,
+          video_info: file.video_info
+            ? {
+                duration_seconds: file.video_info.duration_seconds,
+                has_audio: file.video_info.has_audio,
+              }
+            : null,
+        }));
       }
 
-      // Apply date filtering
-      if (created_after || created_before) {
-        videos = videos.filter((video) => {
-          const videoDate = new Date(video.created_at);
-
-          if (created_after) {
-            const afterDate = new Date(created_after + "T00:00:00.000Z");
-            if (videoDate <= afterDate) return false;
-          }
-
-          if (created_before) {
-            const beforeDate = new Date(created_before + "T23:59:59.999Z");
-            if (videoDate >= beforeDate) return false;
-          }
-
-          return true;
-        });
-      }
-
-      // Apply pagination
-      const paginatedVideos = videos.slice(offset, offset + limit);
-
-      // Calculate total pages based on filtered videos count
-      // Note: We use the filtered count for accurate pagination when date filters are applied
-      const filteredTotal = videos.length;
+      // Calculate total pages based on API total count
       const totalPages =
-        filteredTotal > 0 ? Math.ceil(filteredTotal / VIDEOS_PER_PAGE) : 1;
+        totalCount > 0 ? Math.ceil(totalCount / VIDEOS_PER_PAGE) : 1;
 
       return {
         content: [
@@ -139,7 +123,7 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
             type: "text",
             text: JSON.stringify(
               {
-                videos: paginatedVideos,
+                videos: videos,
                 page: page,
                 total_pages: totalPages,
               },
