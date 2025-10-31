@@ -1,7 +1,7 @@
 {
   "name": "@aviaryhq/cloudglue-mcp-server",
   "type": "module",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "main": "index.js",
   "bin": {
     "cloudglue-mcp-server": "build/index.js"
