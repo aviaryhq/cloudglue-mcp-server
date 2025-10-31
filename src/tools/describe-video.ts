@@ -19,7 +19,16 @@ export const schema = {
     .int()
     .min(0)
     .describe(
-      "Page number for paginated results. Each page contains 5 minutes of video content. Defaults to 0 (first page). Use this to retrieve descriptions for specific time segments of longer videos. Increase the page number to get the next 5-minute segment.",
+      "Page number for paginated results. Each page contains 5 minutes of video content. Defaults to 0 (first page). Use this to retrieve descriptions for specific time segments of longer videos. Increase the page number to get the next 5-minute segment. Works in conjunction with start_time_seconds - page 0 starts from start_time_seconds, page 1 starts 5 minutes after start_time_seconds, etc.",
+    )
+    .optional()
+    .default(0),
+  start_time_seconds: z
+    .number()
+    .int()
+    .min(0)
+    .describe(
+      "Starting time offset in seconds for pagination. Defaults to 0 (start of video). Use this to begin pagination from a specific time index in the video. Combined with the page parameter, this allows you to navigate to specific time ranges: start_time_seconds sets the base offset, and page increments in 5-minute segments from that offset. For example, start_time_seconds=600 (10 minutes) with page=0 returns content from 10-15 minutes, page=1 returns 15-20 minutes, etc.",
     )
     .optional()
     .default(0),
@@ -34,9 +43,9 @@ function extractFileIdFromUrl(url: string): string | null {
 export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "describe_video",
-    "Gets comprehensive video descriptions with intelligent cost optimization and pagination support. Automatically checks for existing descriptions before creating new ones. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels. Results are paginated in 5-minute segments - use the 'page' parameter to retrieve specific time segments of longer videos (page 0 = first 5 minutes, page 1 = next 5 minutes, etc.). When `collection_id` is provided (from a media-descriptions collection), this tool fetches previously extracted descriptions that were stored in that collection for the given Cloudglue file, saving time and cost. Use this for individual video analysis.",
+    "Gets comprehensive video descriptions with intelligent cost optimization and pagination support. Automatically checks for existing descriptions before creating new ones. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels. Results are paginated in 5-minute segments - use the 'page' parameter to retrieve specific time segments of longer videos (page 0 = first 5 minutes, page 1 = next 5 minutes, etc.). Use 'start_time_seconds' to begin pagination from a specific time index (defaults to 0 for start of video). The combination of start_time_seconds and page allows precise navigation: start_time_seconds sets the base offset, and page increments in 5-minute segments from that offset. When `collection_id` is provided (from a media-descriptions collection), this tool fetches previously extracted descriptions that were stored in that collection for the given Cloudglue file, saving time and cost. Use this for individual video analysis.",
     schema,
-    async ({ url, collection_id, page = 0 }) => {
+    async ({ url, collection_id, page = 0, start_time_seconds = 0 }) => {
       const fileId = extractFileIdFromUrl(url);
       const PAGE_SIZE_SECONDS = 300; // 5 minutes in seconds
 
@@ -62,17 +71,78 @@ export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
       };
 
       // Step 1: Check if we have a collection_id and file_id, get from collection
-      // Note: Collection descriptions don't support pagination, so return full content if page is 0
-      if (collection_id && fileId && page === 0) {
+      if (collection_id && fileId) {
         try {
-          const descriptions = await cgClient.collections.getMediaDescriptions(
-            collection_id,
-            fileId,
-            { response_format: "markdown" },
-          );
-          if (descriptions.content) {
-            // For collection descriptions, we can't paginate, so return as page 0 with total_pages 1
-            return formatPaginatedResponse(descriptions.content, 0, 1);
+          // First, get the description to obtain duration for pagination calculation
+          // We'll use this to calculate total pages
+          const fullDescription =
+            await cgClient.collections.getMediaDescriptions(
+              collection_id,
+              fileId,
+              { response_format: "markdown" },
+            );
+
+          if (fullDescription.content !== undefined) {
+            const duration = fullDescription.duration_seconds || 0;
+
+            // Calculate remaining duration from start_time_seconds
+            const remainingDuration = Math.max(
+              0,
+              duration - start_time_seconds,
+            );
+            const totalPages =
+              remainingDuration > 0
+                ? Math.ceil(remainingDuration / PAGE_SIZE_SECONDS)
+                : 1;
+
+            // If start_time_seconds is beyond video length or remaining duration is 0, return empty
+            if (start_time_seconds >= duration || remainingDuration === 0) {
+              return formatPaginatedResponse("", page, totalPages);
+            }
+
+            // Calculate actual time range for the requested page
+            const actualStartTime =
+              start_time_seconds + page * PAGE_SIZE_SECONDS;
+            const actualEndTime = Math.min(
+              start_time_seconds + (page + 1) * PAGE_SIZE_SECONDS,
+              duration,
+            );
+
+            // If calculated start time is beyond video length, return empty description
+            if (actualStartTime >= duration) {
+              return formatPaginatedResponse("", page, totalPages);
+            }
+
+            // If page is 0, start_time_seconds is 0, and video fits in one page, return full description
+            if (
+              page === 0 &&
+              start_time_seconds === 0 &&
+              duration <= PAGE_SIZE_SECONDS
+            ) {
+              return formatPaginatedResponse(
+                fullDescription.content || "",
+                page,
+                totalPages,
+              );
+            }
+
+            // Get paginated description for the requested time range
+            const paginatedDescription =
+              await cgClient.collections.getMediaDescriptions(
+                collection_id,
+                fileId,
+                {
+                  response_format: "markdown",
+                  start_time_seconds: actualStartTime,
+                  end_time_seconds: actualEndTime,
+                },
+              );
+
+            return formatPaginatedResponse(
+              paginatedDescription.content || "",
+              page,
+              totalPages,
+            );
           }
         } catch (error) {
           // Continue to next step if collection lookup fails
@@ -91,10 +161,20 @@ export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
           const describeJob = existingDescriptions.data[0];
           const describeJobId = describeJob.job_id;
           const duration = describeJob.duration_seconds || 0;
-          const totalPages =
-            duration > 0 ? Math.ceil(duration / PAGE_SIZE_SECONDS) : 1;
 
-          // If duration is not available, get full description and return it as page 0
+          // Calculate remaining duration from start_time_seconds
+          const remainingDuration = Math.max(0, duration - start_time_seconds);
+          const totalPages =
+            remainingDuration > 0
+              ? Math.ceil(remainingDuration / PAGE_SIZE_SECONDS)
+              : 1;
+
+          // If start_time_seconds is beyond video length, return empty
+          if (start_time_seconds >= duration || remainingDuration === 0) {
+            return formatPaginatedResponse("", page, totalPages);
+          }
+
+          // If duration is not available, get full description
           if (duration === 0) {
             const description = await cgClient.describe.getDescribe(
               describeJobId,
@@ -104,17 +184,20 @@ export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
             );
             return formatPaginatedResponse(
               description.data?.content || "",
-              page === 0 ? 0 : page,
+              page,
               totalPages,
             );
           }
 
-          // Calculate time range for the requested page
-          const startTime = page * PAGE_SIZE_SECONDS;
-          const endTime = Math.min((page + 1) * PAGE_SIZE_SECONDS, duration);
+          // Calculate actual time range for the requested page
+          const actualStartTime = start_time_seconds + page * PAGE_SIZE_SECONDS;
+          const actualEndTime = Math.min(
+            start_time_seconds + (page + 1) * PAGE_SIZE_SECONDS,
+            duration,
+          );
 
-          // If page is beyond the video length, return empty description
-          if (startTime >= duration) {
+          // If calculated start time is beyond video length, return empty description
+          if (actualStartTime >= duration) {
             return formatPaginatedResponse("", page, totalPages);
           }
 
@@ -122,8 +205,8 @@ export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
             describeJobId,
             {
               response_format: "markdown",
-              start_time_seconds: startTime,
-              end_time_seconds: endTime,
+              start_time_seconds: actualStartTime,
+              end_time_seconds: actualEndTime,
             },
           );
 
@@ -165,36 +248,53 @@ export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
 
         if (completedJob.status === "completed") {
           const duration = completedJob.duration_seconds || 0;
-          const totalPages =
-            duration > 0 ? Math.ceil(duration / PAGE_SIZE_SECONDS) : 1;
 
-          // Calculate time range for the requested page
-          const startTime = page * PAGE_SIZE_SECONDS;
-          const endTime = Math.min(
-            (page + 1) * PAGE_SIZE_SECONDS,
-            duration || Infinity,
+          // Calculate remaining duration from start_time_seconds
+          const remainingDuration = Math.max(
+            0,
+            (duration || Infinity) - start_time_seconds,
           );
+          const totalPages =
+            remainingDuration > 0
+              ? Math.ceil(remainingDuration / PAGE_SIZE_SECONDS)
+              : 1;
 
-          // If page is beyond the video length, return empty description
-          if (startTime >= (duration || Infinity)) {
+          // If start_time_seconds is beyond video length, return empty
+          if (
+            start_time_seconds >= (duration || Infinity) ||
+            remainingDuration === 0
+          ) {
             return formatPaginatedResponse("", page, totalPages);
           }
 
           // Get paginated description for the requested page
           let descriptionContent = "";
           if (duration > 0) {
+            // Calculate actual time range for the requested page
+            const actualStartTime =
+              start_time_seconds + page * PAGE_SIZE_SECONDS;
+            const actualEndTime = Math.min(
+              start_time_seconds + (page + 1) * PAGE_SIZE_SECONDS,
+              duration || Infinity,
+            );
+
+            // If calculated start time is beyond video length, return empty description
+            if (actualStartTime >= (duration || Infinity)) {
+              return formatPaginatedResponse("", page, totalPages);
+            }
+
             const paginatedDescription = await cgClient.describe.getDescribe(
               completedJob.job_id,
               {
                 response_format: "markdown",
-                start_time_seconds: startTime,
-                end_time_seconds: endTime,
+                start_time_seconds: actualStartTime,
+                end_time_seconds: actualEndTime,
               },
             );
             descriptionContent = paginatedDescription.data?.content || "";
           } else {
-            // Fallback to full content if duration is not available (only for page 0)
-            if (page === 0) {
+            // Fallback to full content if duration is not available (only for page 0 and start_time_seconds 0)
+            if (page === 0 && start_time_seconds === 0) {
               descriptionContent = completedJob.data?.content || "";
             } else {
               descriptionContent = "";
