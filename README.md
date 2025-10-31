@@ -131,9 +131,9 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Discovery & Navigation**
 
-- **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. For collections with type 'media-descriptions', use `describe_video` with the collection_id parameter to fetch previously extracted descriptions for a given Cloudglue file. For collections with type 'entities', use `extract_video_entities` with the collection_id parameter to fetch previously extracted entities for a given Cloudglue file. **Pagination**: Results are paginated in 20 collections per page using the `page` parameter (page 0 = first 20 collections, page 1 = next 20 collections, etc.). Each response includes `page` and `total_pages` fields. For comprehensive exploration, paginate through all collections by incrementing the `page` parameter until you've retrieved all pages.
+- **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. For collections with type 'media-descriptions', use `describe_video` with the collection_id parameter to fetch previously extracted descriptions for a given Cloudglue file. For collections with type 'entities', use `extract_video_entities` with the collection_id parameter to fetch previously extracted entities for a given Cloudglue file. **Pagination**: Results are paginated in 25 collections per page using the `page` parameter (page 0 = first 25 collections, page 1 = next 25 collections, etc.). Each response includes `page` and `total_pages` fields. For comprehensive exploration, paginate through all collections by incrementing the `page` parameter until you've retrieved all pages.
 
-- **`list_videos`**: Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. **Pagination**: Results are paginated in 20 videos per page using the `page` parameter (page 0 = first 20 videos, page 1 = next 20 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.
+- **`list_videos`**: Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. **Pagination**: Results are paginated in 25 videos per page using the `page` parameter (page 0 = first 25 videos, page 1 = next 25 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.
 
 ### **Individual Video Analysis**
 
@@ -149,7 +149,7 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Collection Analysis**
 
-- **`retrieve_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. For targeted content discovery, consider using search_video_summaries or search_video_moments instead of browsing through all summaries. **Pagination**: Results are paginated in 10 summaries per page using the `page` parameter (page 0 = first 10 summaries, page 1 = next 10 summaries, etc.). Each response includes `page` and `total_pages` fields. For comprehensive collection analysis, paginate through all summaries by incrementing the `page` parameter until you've retrieved all pages.
+- **`retrieve_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. For targeted content discovery, consider using search_video_summaries or search_video_moments instead of browsing through all summaries. **Pagination**: Results are paginated in 25 summaries per page using the `page` parameter (page 0 = first 25 summaries, page 1 = next 25 summaries, etc.). Each response includes `page` and `total_pages` fields. For comprehensive collection analysis, paginate through all summaries by incrementing the `page` parameter until you've retrieved all pages.
 
 - **`search_video_moments`**: AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments across speech, on-screen text, and visual descriptions. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack spoken and visual content, specific discussions, or thematic analysis. Returns up to 20 relevant video moments per query.
 
@@ -173,11 +173,11 @@ All tools use page-based pagination (`list_collections`, `list_videos`, `describ
 4. Continue until you've retrieved all pages or have sufficient data
 
 **Page sizes by tool:**
-- `list_collections`: 20 collections per page
-- `list_videos`: 20 videos per page
+- `list_collections`: 25 collections per page
+- `list_videos`: 25 videos per page
 - `describe_video`: 5 minutes per page
 - `extract_video_entities`: 25 segment entities per page
-- `retrieve_summaries`: 10 summaries per page
+- `retrieve_summaries`: 25 summaries per page
 
 ### **When to Use Which Tool**
 

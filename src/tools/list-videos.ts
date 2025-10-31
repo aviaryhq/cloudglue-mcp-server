@@ -8,7 +8,7 @@ export const schema = {
     .int()
     .min(0)
     .describe(
-      "Page number for paginated results. Each page contains 20 videos. Defaults to 0 (first page). Use this to retrieve videos for specific pages. Increase the page number to get the next 20 videos.",
+      "Page number for paginated results. Each page contains 25 videos. Defaults to 0 (first page). Use this to retrieve videos for specific pages. Increase the page number to get the next 25 videos.",
     )
     .optional()
     .default(0),
@@ -35,10 +35,10 @@ export const schema = {
 export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
   server.tool(
     "list_videos",
-    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. Results are paginated in 20 videos per page - use the 'page' parameter to retrieve specific pages (page 0 = first 20 videos, page 1 = next 20 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.",
+    "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. Results are paginated in 25 videos per page - use the 'page' parameter to retrieve specific pages (page 0 = first 25 videos, page 1 = next 25 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.",
     schema,
     async ({ page = 0, collection_id, created_after, created_before }) => {
-      const VIDEOS_PER_PAGE = 20;
+      const VIDEOS_PER_PAGE = 25;
       const limit = VIDEOS_PER_PAGE;
       const offset = page * VIDEOS_PER_PAGE;
 
