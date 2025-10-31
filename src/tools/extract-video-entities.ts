@@ -232,7 +232,7 @@ export function registerExtractVideoEntities(
         };
       }
 
-      // TODO: Implement pagination for non-collection extracts when SDK supports it
+      // Step 2: Check for existing individual extracts for this URL with matching prompt
       try {
         const existingExtracts = await cgClient.extract.listExtracts({
           limit: 1,
@@ -248,11 +248,18 @@ export function registerExtractVideoEntities(
             extract.extract_config?.enable_video_level_entities === true &&
             extract.extract_config?.enable_segment_level_entities === true
           ) {
+            // Calculate pagination parameters for segment entities
+            const limit = SEGMENTS_PER_PAGE;
+            const offset = page * SEGMENTS_PER_PAGE;
+
             const extraction = await cgClient.extract.getExtract(
               extract.job_id,
+              {
+                limit,
+                offset,
+              },
             );
-            // TODO: Add pagination support for non-collection extracts when SDK is updated
-            // For now, return page 0 with total_pages 1
+
             const extractionData = extraction.data;
             const segmentEntities =
               extractionData?.segment_entities &&
@@ -260,11 +267,17 @@ export function registerExtractVideoEntities(
                 ? extractionData.segment_entities
                 : [];
 
+            // Calculate total pages based on total segment entities count
+            const totalPages =
+              extraction.total && extraction.total > 0
+                ? Math.ceil(extraction.total / SEGMENTS_PER_PAGE)
+                : 1;
+
             return formatPaginatedEntityResponse(
               extractionData?.entities || {},
               segmentEntities,
-              0,
-              1,
+              page,
+              totalPages,
             );
           }
           // If prompt doesn't match, continue to create new extraction
@@ -274,7 +287,6 @@ export function registerExtractVideoEntities(
       }
 
       // Step 3: Create new entity extraction
-      // TODO: Implement pagination for newly created extracts when SDK supports it
       try {
         const extractJob = await cgClient.extract.createExtract(url, {
           prompt: prompt,
@@ -288,11 +300,18 @@ export function registerExtractVideoEntities(
         );
 
         if (completedJob.status === "completed" && completedJob.data) {
+          // Calculate pagination parameters for segment entities
+          const limit = SEGMENTS_PER_PAGE;
+          const offset = page * SEGMENTS_PER_PAGE;
+
           const entities = await cgClient.extract.getExtract(
             completedJob.job_id,
+            {
+              limit,
+              offset,
+            },
           );
-          // TODO: Add pagination support for newly created extracts when SDK is updated
-          // For now, return page 0 with total_pages 1
+
           const extractionData = entities.data;
           const segmentEntities =
             extractionData?.segment_entities &&
@@ -300,11 +319,17 @@ export function registerExtractVideoEntities(
               ? extractionData.segment_entities
               : [];
 
+          // Calculate total pages based on total segment entities count
+          const totalPages =
+            entities.total && entities.total > 0
+              ? Math.ceil(entities.total / SEGMENTS_PER_PAGE)
+              : 1;
+
           return formatPaginatedEntityResponse(
             extractionData?.entities || {},
             segmentEntities,
-            0,
-            1,
+            page,
+            totalPages,
           );
         }
 
@@ -317,7 +342,7 @@ export function registerExtractVideoEntities(
                   video_level_entities: {},
                   segment_level_entities: {
                     entities: [],
-                    page: 0,
+                    page: page,
                     total_pages: 0,
                   },
                   error:
@@ -339,7 +364,7 @@ export function registerExtractVideoEntities(
                   video_level_entities: {},
                   segment_level_entities: {
                     entities: [],
-                    page: 0,
+                    page: page,
                     total_pages: 0,
                   },
                   error: `Error creating entity extraction: ${error instanceof Error ? error.message : "Unknown error"}`,
