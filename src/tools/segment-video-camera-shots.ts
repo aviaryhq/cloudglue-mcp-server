@@ -32,16 +32,32 @@ export function registerSegmentVideoCameraShots(
     "Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns timestamps and metadata for each camera shot detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.",
     schema,
     async ({ url }) => {
-      // Check if it's a YouTube URL (not supported)
-      if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      // Helper function to format error response
+      const formatErrorResponse = (error: string) => {
         return {
           content: [
             {
-              type: "text",
-              text: "Error: YouTube URLs are not supported for video segmentation. Please use Cloudglue URLs or direct HTTP video URLs instead.",
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  url: url,
+                  error: error,
+                  segments: null,
+                  total_shots: 0,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
+      };
+
+      // Check if it's a YouTube URL (not supported)
+      if (url.includes("youtube.com") || url.includes("youtu.be")) {
+        return formatErrorResponse(
+          "YouTube URLs are not supported for camera shot segmentation. Please use Cloudglue URLs or direct HTTP video URLs instead.",
+        );
       }
 
       // Step 1: Check for existing shot segmentation jobs for this URL
@@ -56,22 +72,28 @@ export function registerSegmentVideoCameraShots(
         if (existingJobs.data && existingJobs.data.length > 0) {
           const job = existingJobs.data[0];
           if (job.segments && job.segments.length > 0) {
-            const segmentsText = job.segments
-              .map((segment, index) => {
-                const startTime = formatTime(segment.start_time);
-                const endTime = formatTime(segment.end_time);
-                const duration = (
-                  segment.end_time - segment.start_time
-                ).toFixed(1);
-                return `Shot ${index + 1}: ${startTime} - ${endTime} (${duration}s)`;
-              })
-              .join("\n");
+            const segments = job.segments.map((segment) => ({
+              start_time: segment.start_time,
+              end_time: segment.end_time,
+              start_time_formatted: formatTime(segment.start_time),
+              end_time_formatted: formatTime(segment.end_time),
+              duration_seconds: segment.end_time - segment.start_time,
+            }));
 
             return {
               content: [
                 {
-                  type: "text",
-                  text: `Found existing camera shot segmentation:\n\n${segmentsText}\n\nTotal shots: ${job.segments.length}`,
+                  type: "text" as const,
+                  text: JSON.stringify(
+                    {
+                      url: url,
+                      segments: segments,
+                      total_shots: job.segments.length,
+                      source: "existing",
+                    },
+                    null,
+                    2,
+                  ),
                 },
               ],
             };
@@ -94,44 +116,40 @@ export function registerSegmentVideoCameraShots(
         );
 
         if (completedJob.status === "completed" && completedJob.segments) {
-          const segmentsText = completedJob.segments
-            .map((segment, index) => {
-              const startTime = formatTime(segment.start_time);
-              const endTime = formatTime(segment.end_time);
-              const duration = (segment.end_time - segment.start_time).toFixed(
-                1,
-              );
-              return `Shot ${index + 1}: ${startTime} - ${endTime} (${duration}s)`;
-            })
-            .join("\n");
+          const segments = completedJob.segments.map((segment) => ({
+            start_time: segment.start_time,
+            end_time: segment.end_time,
+            start_time_formatted: formatTime(segment.start_time),
+            end_time_formatted: formatTime(segment.end_time),
+            duration_seconds: segment.end_time - segment.start_time,
+          }));
 
           return {
             content: [
               {
-                type: "text",
-                text: `New camera shot segmentation created:\n\n${segmentsText}\n\nTotal shots: ${completedJob.segments.length}`,
+                type: "text" as const,
+                text: JSON.stringify(
+                  {
+                    url: url,
+                    segments: segments,
+                    total_shots: completedJob.segments.length,
+                    source: "new",
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Error: Failed to create camera shot segmentation - job did not complete successfully",
-            },
-          ],
-        };
+        return formatErrorResponse(
+          "Failed to create camera shot segmentation - job did not complete successfully",
+        );
       } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error creating camera shot segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
-            },
-          ],
-        };
+        return formatErrorResponse(
+          `Error creating camera shot segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
       }
     },
   );

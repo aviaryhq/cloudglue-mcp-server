@@ -35,20 +35,29 @@ export function registerSegmentVideoChapters(
 ) {
   server.tool(
     "segment_video_chapters",
-    "Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.",
+    "Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).",
     schema,
     async ({ url, prompt }) => {
-      // Check if it's a YouTube URL (not supported)
-      if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      // Helper function to format error response
+      const formatErrorResponse = (error: string) => {
         return {
           content: [
             {
-              type: "text",
-              text: "Error: YouTube URLs are not supported for video segmentation. Please use Cloudglue URLs or direct HTTP video URLs instead.",
+              type: "text" as const,
+              text: JSON.stringify(
+                {
+                  url: url,
+                  error: error,
+                  chapters: null,
+                  total_chapters: 0,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
-      }
+      };
 
       // Step 1: Check for existing narrative segmentation jobs for this URL
       try {
@@ -62,20 +71,28 @@ export function registerSegmentVideoChapters(
         if (existingJobs.data && existingJobs.data.length > 0) {
           const job = existingJobs.data[0];
           if (job.segments && job.segments.length > 0) {
-            const chaptersText = job.segments
-              .map((segment, index) => {
-                const startTime = formatTime(segment.start_time);
-                const description =
-                  segment.description || `Chapter ${index + 1}`;
-                return `Chapter ${index + 1}: ${startTime} - ${description}`;
-              })
-              .join("\n");
+            const chapters = job.segments.map((segment, index) => ({
+              chapter_number: index + 1,
+              start_time: segment.start_time,
+              start_time_formatted: formatTime(segment.start_time),
+              description: segment.description || `Chapter ${index + 1}`,
+            }));
 
             return {
               content: [
                 {
-                  type: "text",
-                  text: `Found existing chapter segmentation:\n\n${chaptersText}\n\nTotal chapters: ${job.segments.length}`,
+                  type: "text" as const,
+                  text: JSON.stringify(
+                    {
+                      url: url,
+                      chapters: chapters,
+                      total_chapters: job.segments.length,
+                      source: "existing",
+                      ...(prompt && { prompt: prompt }),
+                    },
+                    null,
+                    2,
+                  ),
                 },
               ],
             };
@@ -104,41 +121,40 @@ export function registerSegmentVideoChapters(
         );
 
         if (completedJob.status === "completed" && completedJob.segments) {
-          const chaptersText = completedJob.segments
-            .map((segment, index) => {
-              const startTime = formatTime(segment.start_time);
-              const description = segment.description || `Chapter ${index + 1}`;
-              return `Chapter ${index + 1}: ${startTime} - ${description}`;
-            })
-            .join("\n");
+          const chapters = completedJob.segments.map((segment, index) => ({
+            chapter_number: index + 1,
+            start_time: segment.start_time,
+            start_time_formatted: formatTime(segment.start_time),
+            description: segment.description || `Chapter ${index + 1}`,
+          }));
 
           return {
             content: [
               {
-                type: "text",
-                text: `New chapter segmentation created:\n\n${chaptersText}\n\nTotal chapters: ${completedJob.segments.length}`,
+                type: "text" as const,
+                text: JSON.stringify(
+                  {
+                    url: url,
+                    chapters: chapters,
+                    total_chapters: completedJob.segments.length,
+                    source: "new",
+                    ...(prompt && { prompt: prompt }),
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
         }
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: "Error: Failed to create chapter segmentation - job did not complete successfully",
-            },
-          ],
-        };
+        return formatErrorResponse(
+          "Failed to create chapter segmentation - job did not complete successfully",
+        );
       } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error creating chapter segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
-            },
-          ],
-        };
+        return formatErrorResponse(
+          `Error creating chapter segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
       }
     },
   );

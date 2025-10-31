@@ -26,13 +26,13 @@ export function registerGetVideoMetadata(
           return {
             content: [
               {
-                type: "text",
+                type: "text" as const,
                 text: JSON.stringify(
                   {
                     file_id: file_id,
                     status: file.status,
                     error: `Video is in ${file.status} status and metadata may be incomplete`,
-                    available_metadata: {
+                    metadata: {
                       filename: file.filename || null,
                       uri: file.uri || null,
                       created_at: file.created_at || null,
@@ -102,7 +102,7 @@ export function registerGetVideoMetadata(
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: JSON.stringify(metadata, null, 2),
             },
           ],
@@ -111,7 +111,7 @@ export function registerGetVideoMetadata(
         return {
           content: [
             {
-              type: "text",
+              type: "text" as const,
               text: JSON.stringify(
                 {
                   file_id: file_id,
