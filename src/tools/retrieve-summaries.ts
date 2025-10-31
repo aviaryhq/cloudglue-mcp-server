@@ -44,54 +44,55 @@ export function registerRetrieveSummaries(
       const limit = SUMMARIES_PER_PAGE;
       const offset = page * SUMMARIES_PER_PAGE;
 
-      // First get the collection to determine its type
-      const collection =
-        await cgClient.collections.getCollection(collection_id);
-
-      if (!collection || !collection.collection_type) {
+      // Helper function to format error response
+      const formatErrorResponse = (
+        error: string,
+        collection_type?: string | null,
+      ) => {
+        const errorObj: any = {
+          error,
+          collection_id,
+          summaries: [],
+          page: page,
+          total_pages: 0,
+        };
+        if (collection_type !== undefined && collection_type !== null) {
+          errorObj.collection_type = collection_type;
+        }
         return {
           content: [
             {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  error: "Collection not found or invalid collection ID",
-                  collection_id,
-                  summaries: [],
-                  page: page,
-                  total_pages: 0,
-                },
-                null,
-                2,
-              ),
+              type: "text" as const,
+              text: JSON.stringify(errorObj, null, 2),
             },
           ],
         };
+      };
+
+      // First get the collection to determine its type
+      let collection;
+      try {
+        collection = await cgClient.collections.getCollection(collection_id);
+      } catch (error) {
+        return formatErrorResponse(
+          `Error fetching collection: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+
+      if (!collection || !collection.collection_type) {
+        return formatErrorResponse(
+          "Collection not found or invalid collection ID",
+        );
       }
 
       if (
         collection.collection_type !== "rich-transcripts" &&
         collection.collection_type !== "media-descriptions"
       ) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  error: `Collection type '${collection.collection_type}' is not supported. This tool works with rich-transcripts and media-descriptions collections only.`,
-                  collection_id,
-                  collection_type: collection.collection_type,
-                  summaries: [],
-                  page: page,
-                  total_pages: 0,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return formatErrorResponse(
+          `Collection type '${collection.collection_type}' is not supported. This tool works with rich-transcripts and media-descriptions collections only.`,
+          collection.collection_type,
+        );
       }
 
       // Get all descriptions first to apply our own filtering
@@ -99,15 +100,22 @@ export function registerRetrieveSummaries(
       const fetchLimit = Math.min(limit + offset + 50, 100); // Get extra for filtering
 
       let descriptions;
-      if (collection.collection_type === "rich-transcripts") {
-        descriptions = await cgClient.collections.listRichTranscripts(
-          collection_id,
-          { limit: fetchLimit, offset: 0 },
-        );
-      } else {
-        descriptions = await cgClient.collections.listMediaDescriptions(
-          collection_id,
-          { limit: fetchLimit, offset: 0 },
+      try {
+        if (collection.collection_type === "rich-transcripts") {
+          descriptions = await cgClient.collections.listRichTranscripts(
+            collection_id,
+            { limit: fetchLimit, offset: 0 },
+          );
+        } else {
+          descriptions = await cgClient.collections.listMediaDescriptions(
+            collection_id,
+            { limit: fetchLimit, offset: 0 },
+          );
+        }
+      } catch (error) {
+        return formatErrorResponse(
+          `Error fetching descriptions: ${error instanceof Error ? error.message : "Unknown error"}`,
+          collection.collection_type,
         );
       }
 
