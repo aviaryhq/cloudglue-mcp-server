@@ -131,33 +131,29 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 ### **Discovery & Navigation**
 
-- **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. **Pagination guidance**: For comprehensive exploration, paginate through all collections (check `has_more` and increment `offset` by `limit`) to ensure you don't miss any collections. Use smaller limits (5-10) for quick overviews, larger limits (25-50) for thorough exploration.
+- **`list_collections`**: Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. For collections with type 'media-descriptions', use `describe_video` with the collection_id parameter to fetch previously extracted descriptions for a given Cloudglue file. For collections with type 'entities', use `extract_video_entities` with the collection_id parameter to fetch previously extracted entities for a given Cloudglue file. **Pagination**: Results are paginated in 25 collections per page using the `page` parameter (page 0 = first 25 collections, page 1 = next 25 collections, etc.). Each response includes `page` and `total_pages` fields. For comprehensive exploration, paginate through all collections by incrementing the `page` parameter until you've retrieved all pages.
 
-- **`list_videos`**: Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. **Pagination guidance**: For exhaustive exploration, paginate through all videos (check `has_more` and increment `offset` by `limit`) to ensure complete coverage. Use date filtering to focus on specific time periods, then paginate within those results.
+- **`list_videos`**: Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. **Pagination**: Results are paginated in 25 videos per page using the `page` parameter (page 0 = first 25 videos, page 1 = next 25 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.
 
 ### **Individual Video Analysis**
 
-- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos with intelligent cost optimization. Automatically checks for existing transcripts before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_descriptions instead. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).
+- **`describe_video`**: Get comprehensive transcripts and descriptions from individual videos with intelligent cost optimization and pagination support. Automatically checks for existing transcripts before creating new ones. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). **Pagination**: Results are paginated in 5-minute segments using the `page` parameter (page 0 = first 5 minutes, page 1 = next 5 minutes, etc.). Each response includes `page`, `total_pages`, and `description` fields in JSON format. Use pagination to efficiently process longer videos by retrieving descriptions in manageable chunks. Note: Collection descriptions (when using `collection_id`) only support page 0 and return the full description.
 
-- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization. Automatically checks for existing extractions before creating new ones. Use this for individual video analysis - for analyzing multiple videos in a collection, use retrieve_collection_entities instead. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). The quality of results depends heavily on your prompt specificity.
+- **`extract_video_entities`**: Extract structured data and entities from videos using custom prompts with intelligent cost optimization and pagination support. Automatically checks for existing extractions before creating new ones. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). The quality of results depends heavily on your prompt specificity. **Pagination**: Segment-level entities are paginated (25 segments per page) using the `page` parameter. Each response includes `video_level_entities` and `segment_level_entities` with `entities`, `page`, and `total_pages` fields in JSON format.
 
-- **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.
+- **`get_video_metadata`**: Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Returns structured JSON results with complete file metadata, video information (resolution, fps, codec, etc.), processing timestamps, and computed fields. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.
 
-- **`segment_video_camera_shots`**: Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns timestamps and metadata for each camera shot detected. Supports Cloudglue URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). Note: YouTube URLs are not supported for camera shot segmentation.
+- **`segment_video_camera_shots`**: Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns structured JSON results with segments array containing timestamps, formatted times, and duration for each camera shot detected. Supports Cloudglue URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). Note: YouTube URLs are not supported for camera shot segmentation.
 
-- **`segment_video_chapters`**: Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).
+- **`segment_video_chapters`**: Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns structured JSON results with chapters array containing timestamps, formatted times, and descriptions for each chapter detected. Supports optional custom prompt parameter to guide chapter detection. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).
 
 ### **Collection Analysis**
 
-- **`retrieve_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. Only proceed to retrieve_descriptions if you need the full multimodal context for specific videos identified through the summaries. For targeted content discovery, consider using search_video_summaries or search_video_moments instead of browsing through all summaries. **Pagination guidance**: For comprehensive collection analysis, paginate through all summaries (check `has_more` and increment `offset` by `limit`) to ensure complete coverage. Use larger limits (25-50) for efficient bulk analysis, smaller limits (5-10) for targeted exploration.
+- **`retrieve_summaries`**: Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. For targeted content discovery, consider using search_video_summaries or search_video_moments instead of browsing through all summaries. **Pagination**: Results are paginated in 25 summaries per page using the `page` parameter (page 0 = first 25 summaries, page 1 = next 25 summaries, etc.). Each response includes `page` and `total_pages` fields. For comprehensive collection analysis, paginate through all summaries by incrementing the `page` parameter until you've retrieved all pages.
 
-- **`retrieve_descriptions`**: Bulk retrieve rich multimodal descriptions (text, audio, and visual) from a collection with advanced filtering. Works with both rich-transcripts and media-descriptions collections. Use this only after using retrieve_summaries to identify specific videos that need detailed analysis. This tool is more resource-intensive and limited to 10 descriptions per request, so it's best used for targeted analysis of specific videos rather than broad collection overview. For single videos, use describe_video instead. Use date filtering to focus on specific time periods. For targeted content discovery, consider using search_video_moments or search_video_summaries instead of parsing through dense full descriptions. **Pagination guidance**: Due to the 10-item limit, pagination is essential for comprehensive analysis. Always check `has_more` and paginate through all descriptions when user intent requires exhaustive coverage. Use date filtering first to narrow scope, then paginate within filtered results.
+- **`search_video_moments`**: AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments across speech, on-screen text, and visual descriptions. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack spoken and visual content, specific discussions, or thematic analysis. Returns up to 20 relevant video moments per query.
 
-- **`retrieve_entities`**: Batch retrieve structured entity data from multiple videos in a collection. Entities can be user-defined based on what's important for your collection (people, objects, concepts, custom categories). Perfect for data mining, building datasets, or analyzing previously extracted entities at scale. **Pagination guidance**: For comprehensive entity analysis, paginate through all entities (check `has_more` and increment `offset` by `limit`) to ensure complete data coverage. Use date filtering to focus on specific time periods, then paginate within those results. Essential for building complete datasets or performing exhaustive entity analysis.
-
-- **`search_video_moments`**: AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments across speech, on-screen text, and visual descriptions. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack spoken and visual content, specific discussions, or thematic analysis.
-
-- **`search_video_summaries`**: AI-powered semantic search to find relevant videos within a collection. Uses Cloudglue's search API to locate videos based on their content, summaries, and metadata. Works with rich-transcripts and media-descriptions collections. Returns structured search results with video information and relevance scores. Perfect for discovering videos by topic, theme, or content similarity.
+- **`search_video_summaries`**: AI-powered semantic search to find relevant videos within a collection. Uses Cloudglue's search API to locate videos based on their content, summaries, and metadata. Works with rich-transcripts and media-descriptions collections. Returns structured search results with video information and relevance scores. Perfect for discovering videos by topic, theme, or content similarity. Returns up to 20 relevant videos per query.
 
 ### **Pagination Strategy**
 
@@ -170,25 +166,26 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 **How to Paginate:**
 
-1. Start with initial request (offset=0, appropriate limit)
-2. Check response `pagination.has_more` field
-3. If `has_more: true`, increment `offset` by `limit` and repeat
-4. Continue until `has_more: false` or you have sufficient data
-5. Use date filtering first to narrow scope, then paginate within results
+All tools use page-based pagination (`list_collections`, `list_videos`, `describe_video`, `extract_video_entities`, `retrieve_summaries`):
+1. Start with initial request (page=0)
+2. Check response `total_pages` field
+3. If `page < total_pages - 1`, increment `page` and repeat
+4. Continue until you've retrieved all pages or have sufficient data
 
-**Limit Guidelines:**
-
-- **Quick overviews**: 5-10 items
-- **Comprehensive analysis**: 25-50 items
-- **Exhaustive exploration**: Use maximum limits (50 for summaries, 10 for descriptions/entities)
+**Page sizes by tool:**
+- `list_collections`: 25 collections per page
+- `list_videos`: 25 videos per page
+- `describe_video`: 5 minutes per page
+- `extract_video_entities`: 25 segment entities per page
+- `retrieve_summaries`: 25 summaries per page
 
 ### **When to Use Which Tool**
 
 - **Start exploring**: Use `list_collections` and `list_videos` to explore available content
 - **For single videos**: Use `describe_video`, `extract_video_entities`, `segment_video_camera_shots`, or `segment_video_chapters`
 - **For collection overview**: Always start with `retrieve_summaries` to efficiently understand what's in a collection
-- **For detailed analysis**: Only use `retrieve_descriptions` for specific videos that need full multimodal context, identified through summaries
-- **For structured data**: Use `retrieve_entities` for bulk entity extraction
+- **For detailed analysis**: Use `describe_video` for specific videos that need full multimodal context, identified through summaries
+- **For structured data**: Use `extract_video_entities` for entity extraction from individual videos
 - **For specific content**: Use `search_video_moments` for targeted segment search, `search_video_summaries` for video-level search
 - **For technical specs**: Use `get_video_metadata`
 

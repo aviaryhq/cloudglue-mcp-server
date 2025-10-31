@@ -1,7 +1,7 @@
 {
   "name": "@aviaryhq/cloudglue-mcp-server",
   "type": "module",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "main": "index.js",
   "bin": {
     "cloudglue-mcp-server": "build/index.js"
@@ -24,8 +24,8 @@
   "license": "Elastic-2.0",
   "description": "Cloudglue MCP Server",
   "dependencies": {
-    "@aviaryhq/cloudglue-js": "^0.3.2",
-    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@aviaryhq/cloudglue-js": "^0.3.7",
+    "@modelcontextprotocol/sdk": "^1.20.2",
     "dotenv": "^16.4.7",
     "shx": "^0.4.0",
     "zod": "^3.24.2"
