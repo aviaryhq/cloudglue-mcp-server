@@ -13,14 +13,6 @@ export const schema = {
     .describe(
       "Natural language search query to find relevant video moments. Examples: 'Find discussions about pricing strategies', 'Show me customer complaint segments', 'Locate product demo portions', 'Find mentions of specific competitors'. Be specific about what you're looking for.",
     ),
-  max_results: z
-    .number()
-    .min(1)
-    .max(20)
-    .describe(
-      "Maximum number of relevant video moments to return (1-20). Start with 5-10 for focused results, increase for comprehensive searches.",
-    )
-    .default(5),
 };
 
 export function registerSearchVideoMoments(
@@ -31,12 +23,12 @@ export function registerSearchVideoMoments(
     "search_video_moments",
     "AI-powered semantic search to find specific video segments within a collection. Uses Cloudglue's search API to locate relevant moments across speech, on-screen text, and visual descriptions. Returns structured search results with timestamps and metadata. Perfect for finding needle-in-haystack spoken and visual content, specific discussions, or thematic analysis.",
     schema,
-    async ({ collection_id, query, max_results }) => {
+    async ({ collection_id, query }) => {
       try {
         const response = await cgClient.search.searchContent({
           collections: [collection_id],
           query: query,
-          limit: max_results,
+          limit: 20,
           scope: "segment",
         });
 
