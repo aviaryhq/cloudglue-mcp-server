@@ -1,7 +1,7 @@
 # Cloudglue MCP Server
 
 [![NPM Version](https://img.shields.io/npm/v/%40aviaryhq%2Fcloudglue-mcp-server)](https://www.npmjs.com/package/@aviaryhq/cloudglue-mcp-server)
-[![License](https://img.shields.io/badge/License-ELv2-blue.svg)](LICENSE.md)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 ![MCP](https://badge.mcpx.dev?status=on 'MCP Enabled')
 [![Discord](https://img.shields.io/discord/1366541583272382536?logo=discord&label=Discord)](https://discord.gg/QD5KWFVner)
 
