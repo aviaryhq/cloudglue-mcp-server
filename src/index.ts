@@ -56,16 +56,16 @@ const server = new McpServer({
 });
 
 // Register all tools
-registerListCollections(server, cgClient);
-registerListVideos(server, cgClient);
 registerDescribeVideo(server, cgClient);
 registerExtractVideoEntities(server, cgClient);
+registerSegmentVideoCameraShots(server, cgClient);
+registerSegmentVideoChapters(server, cgClient);
+registerListCollections(server, cgClient);
+registerListVideos(server, cgClient);
+registerGetVideoMetadata(server, cgClient);
 registerRetrieveSummaries(server, cgClient);
 registerSearchVideoMoments(server, cgClient);
 registerSearchVideoSummaries(server, cgClient);
-registerGetVideoMetadata(server, cgClient);
-registerSegmentVideoCameraShots(server, cgClient);
-registerSegmentVideoChapters(server, cgClient);
 registerCreateCollection(server, cgClient);
 registerAddVideoToCollection(server, cgClient);
 registerRemoveVideoFromCollection(server, cgClient);
