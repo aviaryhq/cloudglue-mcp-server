@@ -69,7 +69,9 @@ export function registerSegmentVideoChapters(
         });
 
         if (existingJobs.data && existingJobs.data.length > 0) {
-          const job = existingJobs.data[0];
+          const jobListItem = existingJobs.data[0];
+          // Fetch the full job to get segments
+          const job = await cgClient.segments.getSegmentJob(jobListItem.job_id);
           if (job.segments && job.segments.length > 0) {
             const chapters = job.segments.map((segment, index) => ({
               chapter_number: index + 1,

@@ -70,7 +70,9 @@ export function registerSegmentVideoCameraShots(
         });
 
         if (existingJobs.data && existingJobs.data.length > 0) {
-          const job = existingJobs.data[0];
+          const jobListItem = existingJobs.data[0];
+          // Fetch the full job to get segments
+          const job = await cgClient.segments.getSegmentJob(jobListItem.job_id);
           if (job.segments && job.segments.length > 0) {
             const segments = job.segments.map((segment) => ({
               start_time: segment.start_time,
