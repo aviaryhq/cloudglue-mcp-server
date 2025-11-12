@@ -16,6 +16,11 @@ import { registerGetVideoMetadata } from "./tools/get-video-metadata.js";
 import { registerRetrieveSummaries } from "./tools/retrieve-summaries.js";
 import { registerSegmentVideoCameraShots } from "./tools/segment-video-camera-shots.js";
 import { registerSegmentVideoChapters } from "./tools/segment-video-chapters.js";
+import { registerCreateCollection } from "./tools/create-collection.js";
+import { registerAddVideoToCollection } from "./tools/add-video-to-collection.js";
+import { registerRemoveVideoFromCollection } from "./tools/remove-video-from-collection.js";
+import { registerUploadFileToCollection } from "./tools/upload-file-to-collection.js";
+import { registerDeleteCollection } from "./tools/delete-collection.js";
 
 // Parse command line arguments
 const { values: args } = parseArgs({
@@ -61,6 +66,11 @@ registerSearchVideoSummaries(server, cgClient);
 registerGetVideoMetadata(server, cgClient);
 registerSegmentVideoCameraShots(server, cgClient);
 registerSegmentVideoChapters(server, cgClient);
+registerCreateCollection(server, cgClient);
+registerAddVideoToCollection(server, cgClient);
+registerRemoveVideoFromCollection(server, cgClient);
+registerUploadFileToCollection(server, cgClient);
+registerDeleteCollection(server, cgClient);
 
 // Run server
 async function main() {

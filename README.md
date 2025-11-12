@@ -155,6 +155,18 @@ The following Cloudglue tools are available to LLMs through this MCP server:
 
 - **`search_video_summaries`**: AI-powered semantic search to find relevant videos within a collection. Uses Cloudglue's search API to locate videos based on their content, summaries, and metadata. Works with rich-transcripts and media-descriptions collections. Returns structured search results with video information and relevance scores. Perfect for discovering videos by topic, theme, or content similarity. Returns up to 20 relevant videos per query.
 
+### **Collection Management**
+
+- **`create_collection`**: Create a new media-descriptions collection for organizing and processing videos. The collection will be configured to extract summaries, scene text, speech transcripts, and visual descriptions from videos. Requires a unique collection name and optional description. Use this to set up a collection before adding videos to it.
+
+- **`add_video_to_collection`**: Add a video to an existing collection by URL. Supports Cloudglue URLs (`cloudglue://files/file-id`), public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom). Note: YouTube URLs are not supported for adding videos to collections. The video will be processed according to the collection's configuration. Requires collection ID from `list_collections` and the video URL.
+
+- **`remove_video_from_collection`**: Remove a video from a collection using its Cloudglue file ID. The video file itself is not deleted from your account, only removed from this collection. Requires collection ID and file ID (from `list_videos`).
+
+- **`upload_file_to_collection`**: Upload a local video file to Cloudglue and automatically add it to a collection. The file is first uploaded to your Cloudglue account, then added to the specified collection. Requires an absolute file path to the video file on your local system. Supported formats: MP4, MOV, AVI, MKV, WebM. The file must exist and be readable.
+
+- **`delete_collection`**: Delete a collection from your account. The collection and its configuration will be removed, but the video files themselves remain in your account and can be accessed individually or added to other collections. Requires collection ID from `list_collections`.
+
 ### **Pagination Strategy**
 
 **When to Paginate Exhaustively:**
@@ -188,6 +200,8 @@ All tools use page-based pagination (`list_collections`, `list_videos`, `describ
 - **For structured data**: Use `extract_video_entities` for entity extraction from individual videos
 - **For specific content**: Use `search_video_moments` for targeted segment search, `search_video_summaries` for video-level search
 - **For technical specs**: Use `get_video_metadata`
+- **For collection setup**: Use `create_collection` to create a new collection, then `add_video_to_collection` or `upload_file_to_collection` to add videos
+- **For collection maintenance**: Use `remove_video_from_collection` to remove videos, `delete_collection` to delete entire collections
 
 All tools include intelligent features like cost optimization, automatic fallbacks, and comprehensive error handling.
 
