@@ -43,11 +43,7 @@ const cgClient = new CloudGlue({
 // Create server instance
 const server = new McpServer({
   name: "cloudglue-mcp-server",
-  version: "0.2.0",
-  capabilities: {
-    resources: {},
-    tools: {},
-  },
+  version: "0.2.2",
 });
 
 // Register all tools
