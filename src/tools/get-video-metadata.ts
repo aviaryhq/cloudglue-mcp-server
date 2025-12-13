@@ -16,7 +16,7 @@ export function registerGetVideoMetadata(
 ) {
   server.tool(
     "get_video_metadata",
-    "Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like get_video_description.",
+    "Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.",
     schema,
     async ({ file_id }) => {
       try {
