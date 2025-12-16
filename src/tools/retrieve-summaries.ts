@@ -39,6 +39,12 @@ export function registerRetrieveSummaries(
     "retrieve_summaries",
     "Bulk retrieve video summaries and titles from a collection to quickly understand its content and themes. Works with both rich-transcripts and media-descriptions collections. Use this as your first step when analyzing a collection - it's more efficient than retrieving full descriptions and helps you determine if you need more detailed information. Perfect for getting a high-level overview of what's in a collection, identifying common topics, or determining if a collection contains relevant content for a specific query. For single videos, use describe_video instead. For targeted content discovery, consider using search_video_summaries (for relevant videos) or search_video_moments (for specific segments) instead of browsing through all summaries. Results are paginated in 25 summaries per page - use the 'page' parameter to retrieve specific pages (page 0 = first 25 summaries, page 1 = next 25 summaries, etc.). Each response includes `page` and `total_pages` fields. For comprehensive collection analysis, paginate through all summaries by incrementing the `page` parameter.",
     schema,
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ collection_id, page = 0, created_after, created_before }) => {
       const SUMMARIES_PER_PAGE = 25;
       const limit = SUMMARIES_PER_PAGE;

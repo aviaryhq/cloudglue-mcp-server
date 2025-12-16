@@ -37,6 +37,12 @@ export function registerListVideos(server: McpServer, cgClient: CloudGlue) {
     "list_videos",
     "Browse and search video metadata with powerful filtering options. Use this to explore available videos, find specific content by date, or see what's in a collection. Returns essential video info like duration, filename, and IDs needed for other tools. Results are paginated in 25 videos per page - use the 'page' parameter to retrieve specific pages (page 0 = first 25 videos, page 1 = next 25 videos, etc.). Each response includes `page` and `total_pages` fields. Use date filtering to focus on specific time periods, then paginate within those results.",
     schema,
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ page = 0, collection_id, created_after, created_before }) => {
       const VIDEOS_PER_PAGE = 25;
       const limit = VIDEOS_PER_PAGE;

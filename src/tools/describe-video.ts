@@ -45,6 +45,12 @@ export function registerDescribeVideo(server: McpServer, cgClient: CloudGlue) {
     "describe_video",
     "Gets comprehensive video descriptions with intelligent cost optimization and pagination support. Automatically checks for existing descriptions before creating new ones. Supports YouTube URLs, Cloudglue URLs, and direct HTTP video URLs with different analysis levels. Results are paginated in 5-minute segments - use the 'page' parameter to retrieve specific time segments of longer videos (page 0 = first 5 minutes, page 1 = next 5 minutes, etc.). Use 'start_time_seconds' to begin pagination from a specific time index (defaults to 0 for start of video). The combination of start_time_seconds and page allows precise navigation: start_time_seconds sets the base offset, and page increments in 5-minute segments from that offset. When `collection_id` is provided (from a media-descriptions collection), this tool fetches previously extracted descriptions that were stored in that collection for the given Cloudglue file, saving time and cost. Use this for individual video analysis.",
     schema,
+    {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ url, collection_id, page = 0, start_time_seconds = 0 }) => {
       const fileId = extractFileIdFromUrl(url);
       const PAGE_SIZE_SECONDS = 300; // 5 minutes in seconds

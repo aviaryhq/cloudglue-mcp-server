@@ -23,6 +23,12 @@ export function registerSearchVideoSummaries(
     "search_video_summaries",
     "AI-powered semantic search to find relevant videos within a collection. Uses Cloudglue's search API to locate videos based on their content, summaries, and metadata. Works with rich-transcripts and media-descriptions collections. Returns structured search results with video information and relevance scores. Perfect for discovering videos by topic, theme, or content similarity.",
     schema,
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ collection_id, query }) => {
       try {
         const response = await cgClient.search.searchContent({

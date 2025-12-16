@@ -1,13 +1,14 @@
 {
   "manifest_version": "0.2",
   "name": "@aviaryhq/cloudglue-mcp-server",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Cloudglue MCP Server",
   "icon": "assets/icon.png",
   "author": {
     "name": "Aviary Inc."
   },
   "license": "MIT",
+  "privacy_policies": ["https://cloudglue.dev/privacy"],
   "server": {
     "type": "node",
     "entry_point": "build/index.js",

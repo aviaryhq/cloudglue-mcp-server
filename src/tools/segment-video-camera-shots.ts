@@ -31,6 +31,12 @@ export function registerSegmentVideoCameraShots(
     "segment_video_camera_shots",
     "Segment videos into camera shots with intelligent cost optimization. Automatically checks for existing shot segmentation jobs before creating new ones. Returns timestamps and metadata for each camera shot detected. Supports Cloudglue URLs and direct HTTP video URLs. Note: YouTube URLs are not supported for segmentation.",
     schema,
+    {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ url }) => {
       // Helper function to format error response
       const formatErrorResponse = (error: string) => {

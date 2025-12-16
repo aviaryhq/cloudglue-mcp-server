@@ -37,6 +37,12 @@ export function registerSegmentVideoChapters(
     "segment_video_chapters",
     "Segment videos into chapters with intelligent cost optimization. Automatically checks for existing chapter segmentation jobs before creating new ones. Returns timestamps and descriptions for each chapter detected. Supports all URL formats: Cloudglue URLs, YouTube URLs, public HTTP video URLs, and data connector URLs (Dropbox, Google Drive, Zoom).",
     schema,
+    {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ url, prompt }) => {
       // Helper function to format error response
       const formatErrorResponse = (error: string) => {
