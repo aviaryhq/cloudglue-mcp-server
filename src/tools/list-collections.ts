@@ -28,6 +28,12 @@ export function registerListCollections(
     "list_collections",
     "Discover available video collections and their basic metadata. Use this first to understand what video collections exist before using other collection-specific tools. Shows collection IDs needed for other tools, video counts, and collection types. For collections with type 'media-descriptions', use `describe_video` with the collection_id parameter to fetch previously extracted descriptions for a given Cloudglue file. For collections with type 'entities', use `extract_video_entities` with the collection_id parameter to fetch previously extracted entities for a given Cloudglue file. Results are paginated in 25 collections per page - use the 'page' parameter to retrieve specific pages (page 0 = first 25 collections, page 1 = next 25 collections, etc.). Each response includes `page` and `total_pages` fields.",
     schema,
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ page = 0, collection_type }) => {
       const COLLECTIONS_PER_PAGE = 25;
       const limit = COLLECTIONS_PER_PAGE;

@@ -18,6 +18,12 @@ export function registerGetVideoMetadata(
     "get_video_metadata",
     "Get comprehensive technical metadata about a Cloudglue video file including duration, resolution, file size, processing status, and computed statistics. Use this when you need video specifications, file details, or processing information rather than content analysis. Different from content-focused tools like describe_video.",
     schema,
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     async ({ file_id }) => {
       try {
         const file = await cgClient.files.getFile(file_id);
