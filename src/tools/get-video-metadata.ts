@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   file_id: z
@@ -29,28 +30,17 @@ export function registerGetVideoMetadata(
         const file = await cgClient.files.getFile(file_id);
 
         if (file.status !== "completed") {
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: JSON.stringify(
-                  {
-                    file_id: file_id,
-                    status: file.status,
-                    error: `Video is in ${file.status} status and metadata may be incomplete`,
-                    metadata: {
-                      filename: file.filename || null,
-                      uri: file.uri || null,
-                      created_at: file.created_at || null,
-                      updated_at: file.updated_at || null,
-                    },
-                  },
-                  null,
-                  2,
-                ),
-              },
-            ],
-          };
+          return jsonErrorResponse({
+            file_id: file_id,
+            status: file.status,
+            error: `Video is in ${file.status} status and metadata may be incomplete`,
+            metadata: {
+              filename: file.filename || null,
+              uri: file.uri || null,
+              created_at: file.created_at || null,
+              updated_at: file.updated_at || null,
+            },
+          });
         }
 
         // Comprehensive metadata response
@@ -114,22 +104,11 @@ export function registerGetVideoMetadata(
           ],
         };
       } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  file_id: file_id,
-                  error: `Failed to retrieve video metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
-                  metadata: null,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          file_id: file_id,
+          error: `Failed to retrieve video metadata: ${getErrorMessage(error)}`,
+          metadata: null,
+        });
       }
     },
   );

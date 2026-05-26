@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   url: z
@@ -310,40 +311,18 @@ export function registerDescribeVideo(server: McpServer, cgClient: Cloudglue) {
           return formatPaginatedResponse(descriptionContent, page, totalPages);
         }
 
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  description:
-                    "Error: Failed to create description - job did not complete successfully",
-                  page: page,
-                  total_pages: 0,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          description:
+            "Error: Failed to create description - job did not complete successfully",
+          page: page,
+          total_pages: 0,
+        });
       } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  description: `Error creating description: ${error instanceof Error ? error.message : "Unknown error"}`,
-                  page: page,
-                  total_pages: 0,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          description: `Error creating description: ${getErrorMessage(error)}`,
+          page: page,
+          total_pages: 0,
+        });
       }
     },
   );

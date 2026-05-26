@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   url: z
@@ -54,30 +55,30 @@ export function registerExtractVideoEntities(
     async ({ url, prompt, collection_id, page = 0 }) => {
       // Validate that either collection_id or prompt is provided
       if (!collection_id && !prompt) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  video_level_entities: {},
-                  segment_level_entities: {
-                    entities: [],
-                    page: page,
-                    total_pages: 0,
-                  },
-                  error: "Either 'collection_id' or 'prompt' must be provided",
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          video_level_entities: {},
+          segment_level_entities: {
+            entities: [],
+            page: page,
+            total_pages: 0,
+          },
+          error: "Either 'collection_id' or 'prompt' must be provided",
+        });
       }
 
       const fileId = extractFileIdFromUrl(url);
       const SEGMENTS_PER_PAGE = 25;
+
+      const formatEntityErrorResponse = (error: string) =>
+        jsonErrorResponse({
+          video_level_entities: {},
+          segment_level_entities: {
+            entities: [],
+            page: page,
+            total_pages: 0,
+          },
+          error,
+        });
 
       // Helper function to format paginated entity response
       const formatPaginatedEntityResponse = (
@@ -140,102 +141,32 @@ export function registerExtractVideoEntities(
             );
           } else {
             // Entities not found in collection
-            return {
-              content: [
-                {
-                  type: "text" as const,
-                  text: JSON.stringify(
-                    {
-                      video_level_entities: {},
-                      segment_level_entities: {
-                        entities: [],
-                        page: page,
-                        total_pages: 0,
-                      },
-                      error: `No entities found for video in collection. The video may not have been processed yet or may not exist in the specified collection.`,
-                    },
-                    null,
-                    2,
-                  ),
-                },
-              ],
-            };
+            return formatEntityErrorResponse(
+              "No entities found for video in collection. The video may not have been processed yet or may not exist in the specified collection.",
+            );
           }
         } catch (error) {
           // Return error if collection lookup fails
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: JSON.stringify(
-                  {
-                    video_level_entities: {},
-                    segment_level_entities: {
-                      entities: [],
-                      page: page,
-                      total_pages: 0,
-                    },
-                    error: `Error fetching entities from collection: ${error instanceof Error ? error.message : "Unknown error"}`,
-                  },
-                  null,
-                  2,
-                ),
-              },
-            ],
-          };
+          return formatEntityErrorResponse(
+            `Error fetching entities from collection: ${getErrorMessage(error)}`,
+          );
         }
       }
 
       // If collection_id was provided but fileId is missing, return error
       if (collection_id && !fileId) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  video_level_entities: {},
-                  segment_level_entities: {
-                    entities: [],
-                    page: page,
-                    total_pages: 0,
-                  },
-                  error:
-                    "collection_id requires a Cloudglue URL (cloudglue://files/file-id). Other URL formats are not supported for collection entity retrieval.",
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return formatEntityErrorResponse(
+          "collection_id requires a Cloudglue URL (cloudglue://files/file-id). Other URL formats are not supported for collection entity retrieval.",
+        );
       }
 
       // Step 2: Check for existing individual extracts for this URL with matching prompt
       // At this point, if collection_id was provided we would have already returned or errored
       // So prompt must be defined (validated at function start)
       if (!prompt) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  video_level_entities: {},
-                  segment_level_entities: {
-                    entities: [],
-                    page: page,
-                    total_pages: 0,
-                  },
-                  error:
-                    "prompt is required when collection_id is not provided",
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return formatEntityErrorResponse(
+          "prompt is required when collection_id is not provided",
+        );
       }
 
       // Step 2: Check for existing individual extracts for this URL with matching prompt
@@ -340,48 +271,13 @@ export function registerExtractVideoEntities(
           );
         }
 
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  video_level_entities: {},
-                  segment_level_entities: {
-                    entities: [],
-                    page: page,
-                    total_pages: 0,
-                  },
-                  error:
-                    "Failed to create entity extraction - job did not complete successfully",
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return formatEntityErrorResponse(
+          "Failed to create entity extraction - job did not complete successfully",
+        );
       } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  video_level_entities: {},
-                  segment_level_entities: {
-                    entities: [],
-                    page: page,
-                    total_pages: 0,
-                  },
-                  error: `Error creating entity extraction: ${error instanceof Error ? error.message : "Unknown error"}`,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return formatEntityErrorResponse(
+          `Error creating entity extraction: ${getErrorMessage(error)}`,
+        );
       }
     },
   );

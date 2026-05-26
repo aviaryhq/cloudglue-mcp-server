@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   collection_id: z
@@ -55,24 +56,13 @@ export function registerSearchVideoMoments(
           ],
         };
       } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(
-                {
-                  query: query,
-                  collection_id: collection_id,
-                  error: `Failed to search collection: ${error instanceof Error ? error.message : "Unknown error"}`,
-                  moments_found: null,
-                  citations: [],
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          query: query,
+          collection_id: collection_id,
+          error: `Failed to search collection: ${getErrorMessage(error)}`,
+          moments_found: null,
+          citations: [],
+        });
       }
     },
   );

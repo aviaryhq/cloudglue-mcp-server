@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   url: z
@@ -46,23 +47,12 @@ export function registerSegmentVideoChapters(
     async ({ url, prompt }) => {
       // Helper function to format error response
       const formatErrorResponse = (error: string) => {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  url: url,
-                  error: error,
-                  chapters: null,
-                  total_chapters: 0,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          url: url,
+          error: error,
+          chapters: null,
+          total_chapters: 0,
+        });
       };
 
       // Step 1: Check for existing narrative segmentation jobs for this URL
@@ -80,7 +70,10 @@ export function registerSegmentVideoChapters(
           );
           if (fullJob.segments && fullJob.segments.length > 0) {
             const chapters = fullJob.segments.map(
-              (segment: { start_time: number; description?: string }, index: number) => ({
+              (
+                segment: { start_time: number; description?: string },
+                index: number,
+              ) => ({
                 chapter_number: index + 1,
                 start_time: segment.start_time,
                 start_time_formatted: formatTime(segment.start_time),
@@ -163,7 +156,7 @@ export function registerSegmentVideoChapters(
         );
       } catch (error) {
         return formatErrorResponse(
-          `Error creating chapter segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Error creating chapter segmentation: ${getErrorMessage(error)}`,
         );
       }
     },

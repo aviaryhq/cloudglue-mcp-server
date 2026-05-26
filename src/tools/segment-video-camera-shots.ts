@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   url: z
@@ -40,23 +41,12 @@ export function registerSegmentVideoCameraShots(
     async ({ url }) => {
       // Helper function to format error response
       const formatErrorResponse = (error: string) => {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  url: url,
-                  error: error,
-                  segments: null,
-                  total_shots: 0,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-        };
+        return jsonErrorResponse({
+          url: url,
+          error: error,
+          segments: null,
+          total_shots: 0,
+        });
       };
 
       // Check if it's a YouTube URL (not supported)
@@ -156,7 +146,7 @@ export function registerSegmentVideoCameraShots(
         );
       } catch (error) {
         return formatErrorResponse(
-          `Error creating camera shot segmentation: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Error creating camera shot segmentation: ${getErrorMessage(error)}`,
         );
       }
     },

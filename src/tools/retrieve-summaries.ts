@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Cloudglue } from "@cloudglue/cloudglue-js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getErrorMessage, jsonErrorResponse } from "./error-response.js";
 
 export const schema = {
   collection_id: z
@@ -65,14 +66,7 @@ export function registerRetrieveSummaries(
         if (collection_type !== undefined && collection_type !== null) {
           errorObj.collection_type = collection_type;
         }
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(errorObj, null, 2),
-            },
-          ],
-        };
+        return jsonErrorResponse(errorObj);
       };
 
       // First get the collection to determine its type
@@ -81,7 +75,7 @@ export function registerRetrieveSummaries(
         collection = await cgClient.collections.getCollection(collection_id);
       } catch (error) {
         return formatErrorResponse(
-          `Error fetching collection: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Error fetching collection: ${getErrorMessage(error)}`,
         );
       }
 
@@ -120,7 +114,7 @@ export function registerRetrieveSummaries(
         }
       } catch (error) {
         return formatErrorResponse(
-          `Error fetching descriptions: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Error fetching descriptions: ${getErrorMessage(error)}`,
           collection.collection_type,
         );
       }
